@@ -14,6 +14,7 @@ $(build_newlib): logdir
 	> $(log)
 	cd $(build); \
 	  ../$(src_dir)/configure \
+	    --disable-newlib-supplied-syscalls \
 	    --target=$(target) \
 	    --prefix=$(prefix) \
 	    $(extra_configure_args) \
