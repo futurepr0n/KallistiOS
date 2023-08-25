@@ -517,23 +517,23 @@ static void g2_read_block_8(uint8 *dst, uint8 *src, int len) {
         --len;
     }
 
-    if(!len)
-        return;
+    if(len > 0) {
 
-    len >>= 3;
+        len >>= 3;
 
-    do {
-        d[0] = *s++;
-        d[1] = *s++;
-        d[2] = *s++;
-        d[3] = *s++;
-        d[4] = *s++;
-        d[5] = *s++;
-        d[6] = *s++;
-        d[7] = *s++;
-        d += 8;
+        do {
+            d[0] = *s++;
+            d[1] = *s++;
+            d[2] = *s++;
+            d[3] = *s++;
+            d[4] = *s++;
+            d[5] = *s++;
+            d[6] = *s++;
+            d[7] = *s++;
+            d += 8;
+        }
+        while(--len);
     }
-    while(--len);
 
     G2_UNLOCK(old1, old2);
 }
