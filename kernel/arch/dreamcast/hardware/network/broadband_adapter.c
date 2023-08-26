@@ -406,13 +406,11 @@ static void rx_reset(void) {
     rtl.cur_rx = 0;
     g2_write_8(NIC(RT_CHIPCMD), RT_CMD_TX_ENABLE);
 
-    //g2_write_32(NIC(RT_RXCONFIG), 0x00000e0a);
     g2_write_32(NIC(RT_RXCONFIG), RX_CONFIG_DEFAULT | RT_RXC_APM | RT_RXC_AB);
 
     while(!(g2_read_8(NIC(RT_CHIPCMD)) & RT_CMD_RX_ENABLE))
         g2_write_8(NIC(RT_CHIPCMD), RT_CMD_TX_ENABLE | RT_CMD_RX_ENABLE);
 
-    //g2_write_32(NIC(RT_RXCONFIG), 0x00000e0a);
     g2_write_32(NIC(RT_RXCONFIG), RX_CONFIG_DEFAULT | RT_RXC_APM | RT_RXC_AB);
     g2_write_16(NIC(RT_INTRSTATUS), 0xffff);
 }
@@ -729,14 +727,14 @@ static int bba_tx(const uint8 * pkt, int len, int wait)
 
     /* Wait till it's clear to transmit */
     if(wait == BBA_TX_WAIT) {
-        while(!(g2_read_32(NIC(RT_TXSTATUS0 + 4 * rtl.cur_tx)) & 0x2000)) {
-            if(g2_read_32(NIC(RT_TXSTATUS0 + 4 * rtl.cur_tx)) & 0x40000000)
+        while(!(g2_read_32(NIC(RT_TXSTATUS0 + 4 * rtl.cur_tx)) & RT_TX_HOST_OWNS)) {
+            if(g2_read_32(NIC(RT_TXSTATUS0 + 4 * rtl.cur_tx)) & RT_TX_ABORTED)
                 g2_write_32(NIC(RT_TXSTATUS0 + 4 * rtl.cur_tx),
                             g2_read_32(NIC(RT_TXSTATUS0 + 4 * rtl.cur_tx)) | 1);
         }
     }
     else {
-        if(!(g2_read_32(NIC(RT_TXSTATUS0 + 4 * rtl.cur_tx)) & 0x2000)) {
+        if(!(g2_read_32(NIC(RT_TXSTATUS0 + 4 * rtl.cur_tx)) & RT_TX_HOST_OWNS)) {
             return BBA_TX_AGAIN;
         }
     }
@@ -1140,7 +1138,7 @@ static int bba_if_set_mc(netif_t *self, const uint8 *list, int count) {
 
         /* Disable multicast reception */
         old = g2_read_32(NIC(RT_RXCONFIG));
-        g2_write_32(NIC(RT_RXCONFIG), old & ~0x00000004);
+        g2_write_32(NIC(RT_RXCONFIG), old & ~RT_RXC_AM);
     }
     else {
         int i, pos;
@@ -1159,7 +1157,7 @@ static int bba_if_set_mc(netif_t *self, const uint8 *list, int count) {
 
         /* Enable multicast reception */
         old = g2_read_32(NIC(RT_RXCONFIG));
-        g2_write_32(NIC(RT_RXCONFIG), old | 0x00000004);
+        g2_write_32(NIC(RT_RXCONFIG), old | RT_RXC_AM);
     }
 
     return 0;
