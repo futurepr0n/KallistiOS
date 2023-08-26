@@ -98,7 +98,6 @@ __BEGIN_DECLS
 #define RT_MII_RES0400     0x0400  /**< \brief Reserved */
 #define RT_MII_AN_START    0x0200  /**< \brief Start auto-negotiation */
 #define RT_MII_DUPLEX      0x0100  /**< \brief 1 for full 0 for half. Ignored if AN enabled. */
-
 /** @} */
 
 /** \defgroup bba_miisb RTL8139C MII (media independent interface) status bits
@@ -144,7 +143,7 @@ __BEGIN_DECLS
 #define RT_INT_RX_ACK (RT_INT_RXFIFO_OVERFLOW | RT_INT_RXBUF_OVERFLOW | RT_INT_RX_OK)
 /** @} */
 
-/** \defgroup bba_tbits RTL8139C transmit status bits
+/** \defgroup bba_tbits RTL8139C Transmit Status bits
     @{
 */
 #define RT_TX_CARRIER_LOST  0x80000000  /**< \brief Carrier sense lost */
@@ -159,18 +158,42 @@ __BEGIN_DECLS
 /** \defgroup bba_rbits RTL8139C receive status bits
     @{
 */
-#define RT_RX_MULTICAST     0x00008000  /**< \brief Multicast packet */
-#define RT_RX_PAM           0x00004000  /**< \brief Physical address matched */
-#define RT_RX_BROADCAST     0x00002000  /**< \brief Broadcast address matched */
-#define RT_RX_BAD_SYMBOL    0x00000020  /**< \brief Invalid symbol in 100TX packet */
-#define RT_RX_RUNT          0x00000010  /**< \brief Packet size is <64 bytes */
-#define RT_RX_TOO_LONG      0x00000008  /**< \brief Packet size is >4K bytes */
-#define RT_RX_CRC_ERR       0x00000004  /**< \brief CRC error */
-#define RT_RX_FRAME_ALIGN   0x00000002  /**< \brief Frame alignment error */
-#define RT_RX_STATUS_OK     0x00000001  /**< \brief Status ok: a good packet was received */
+#define RT_RX_MULTICAST     0x8000  /**< \brief Multicast packet */
+#define RT_RX_PAM           0x4000  /**< \brief Physical address matched */
+#define RT_RX_BROADCAST     0x2000  /**< \brief Broadcast address matched */
+#define RT_RX_BAD_SYMBOL    0x0020  /**< \brief Invalid symbol in 100TX packet */
+#define RT_RX_RUNT          0x0010  /**< \brief Packet size is <64 bytes */
+#define RT_RX_TOO_LONG      0x0008  /**< \brief Packet size is >4K bytes */
+#define RT_RX_CRC_ERR       0x0004  /**< \brief CRC error */
+#define RT_RX_FRAME_ALIGN   0x0002  /**< \brief Frame alignment error */
+#define RT_RX_STATUS_OK     0x0001  /**< \brief Status ok: a good packet was received */
 /** @} */
 
-/** \defgroup bba_config1bits RTL8139C Config Register 1 bits
+/** \defgroup bba_config5bits RTL8139C RX Config Register (RT_RXCONFIG) bits
+
+    From RTL8139C(L) datasheet v1.4.
+
+    @{
+*/
+#define RT_ERTH(n)         ((n) <<24)  /**< \brief Early RX Threshold multiplier n/16 or 0 for none */
+
+#define RT_RXC_MulERINT    0x00020000  /**< \brief 0 for Early Receive Interrupt only on familiar protocols 1 for any */
+#define RT_RXC_RER8        0x00010000  /**< \brief 1 sets the acceptance of runt error packets */
+#define RT_RXC_RXFTH(n)    ((n) <<13)  /**< \brief 2^(4+n) bytes from 0-6 (16b - 1Kb) or 7 for none */
+#define RT_RXC_RBLEN(n)    ((n) <<11)  /**< \brief Set Rx ring buffer len to 16b + 2^(3+n) kb. */
+#define RT_RXC_MXDMA(n)    ((n) << 8)  /**< \brief 2^(4+n) bytes from 0-6 (16b - 1Kb) or 7 for unlimited */
+
+#define RT_RXC_WRAP        0x00000080  /**< \brief 0 to use wrapping mode or 1 to not (Ignored for 64Kb buffer length) */
+#define RT_RXC_9356SEL     0x00000040  /**< \brief 0 if EEPROM is 9346, 1 if 9356. RO */
+#define RT_RXC_AER         0x00000020  /**< \brief Accept Error Packets */
+#define RT_RXC_AR          0x00000010  /**< \brief Accept Runt (8-64 byte) Packets */
+#define RT_RXC_AB          0x00000008  /**< \brief Accept Broadcast Packets */
+#define RT_RXC_AM          0x00000004  /**< \brief Accept Multicast Packets */
+#define RT_RXC_APM         0x00000002  /**< \brief Accept Physical Match Packets */
+#define RT_RXC_AAP         0x00000001  /**< \brief Accept Physical Address Packets */
+/** @} */
+
+/** \defgroup bba_config1bits RTL8139C Config Register 1 (RT_CONFIG1) bits
 
     From RTL8139C(L) datasheet v1.4
 
@@ -186,7 +209,7 @@ __BEGIN_DECLS
 #define RT_CONFIG1_PMEn     0x01 /**< \brief Power Management Enable */
 /** @} */
 
-/** \defgroup bba_config4bits RTL8139C Config Register 4 bits
+/** \defgroup bba_config4bits RTL8139C Config Register 4 (RT_CONFIG4) bits
 
     From RTL8139C(L) datasheet v1.4. Only RT_CONFIG4_RxFIFIOAC is used.
 
@@ -202,7 +225,7 @@ __BEGIN_DECLS
 #define RT_CONFIG4_PBWake    0x01 /**< \brief Disable pre-Boot Wakeup. */
 /** @} */
 
-/** \defgroup bba_config5bits RTL8139C Config Register 5 bits
+/** \defgroup bba_config5bits RTL8139C Config Register 5 (RT_CONFIG5) bits
 
     From RTL8139C(L) datasheet v1.4. Only RT_CONFIG5_LDPS is used.
 
