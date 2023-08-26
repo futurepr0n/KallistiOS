@@ -22,26 +22,19 @@
 #include <kos/thread.h>
 #include <kos/sem.h>
 
-//#define vid_border_color(r, g, b) (void)0 /* nothing */
-
 /* Configuration definitions */
 
 #define RTL_MEM                 (0x1840000)
 
-#define RX_NOWRAP               1 /* 1 for no wrapping or 0 to use wrapping mode (Ignored for 64Kb buffer length) */
-#define RX_MAX_DMA_BURST        6 /* 2^(4+n) bytes from 0-6 (16b - 1Kb) or 7 for unlimited */
-#define RX_BUFFER_LEN_SHIFT     1 /* 0 : 8Kb, 1 : 16Kb, 2 : 32Kb, 3 : 64Kb */
-#define RX_FIFO_THRESHOLD       0 /* 2^(4+n) bytes from 0-6 (16b - 1Kb) or 7 for none */
-#define RX_EARLY_THRESHOLD      0 /* Early RX Threshold multiplier n/16 or 0 for none */
+#define RX_BUFFER_SHIFT           1 /* 0 : 8Kb, 1 : 16Kb, 2 : 32Kb, 3 : 64Kb */
 
-#define RX_CONFIG               (RX_EARLY_THRESHOLD<<24) | (RX_FIFO_THRESHOLD<<13) | \
-                                (RX_BUFFER_LEN_SHIFT<<11) | (RX_MAX_DMA_BURST<<8) | \
-                                (RX_NOWRAP<<7)
+#define RX_CONFIG_DEFAULT       (RT_ERTH(0) | RT_RXC_RXFTH(0) | \
+                                RT_RXC_RBLEN(RX_BUFFER_SHIFT) | RT_RXC_MXDMA(6) | RT_RXC_WRAP)
+
+#define RX_BUFFER_LEN           (0x2000 << RX_BUFFER_SHIFT)
 
 #define TX_MAX_DMA_BURST        6 /* 2^(4+n) bytes from 0-7 (16b - 2Kb) */
 #define TX_CONFIG               (TX_MAX_DMA_BURST<<8)
-
-#define RX_BUFFER_LEN           (0x2000<<RX_BUFFER_LEN_SHIFT)
 
 #define TX_BUFFER_OFFSET        (RX_BUFFER_LEN + 0x2000)
 #define TX_BUFFER_LEN           (0x800)
@@ -343,7 +336,7 @@ static int bba_hw_init(void) {
     g2_write_8(NIC(RT_CHIPCMD), RT_CMD_RX_ENABLE | RT_CMD_TX_ENABLE);
 
     /* Set Rx FIFO threashold to 1K, Rx size to 16k+16, 1024 byte DMA burst */
-    g2_write_32(NIC(RT_RXCONFIG), RX_CONFIG);
+    g2_write_32(NIC(RT_RXCONFIG), RX_CONFIG_DEFAULT);
 
     /* Set Tx 1024 byte DMA burst */
     g2_write_32(NIC(RT_TXCONFIG), TX_CONFIG);
@@ -415,13 +408,13 @@ static void rx_reset(void) {
     g2_write_8(NIC(RT_CHIPCMD), RT_CMD_TX_ENABLE);
 
     //g2_write_32(NIC(RT_RXCONFIG), 0x00000e0a);
-    g2_write_32(NIC(RT_RXCONFIG), RX_CONFIG | 0x0000000a);
+    g2_write_32(NIC(RT_RXCONFIG), RX_CONFIG_DEFAULT | RT_RXC_APM | RT_RXC_AB);
 
     while(!(g2_read_8(NIC(RT_CHIPCMD)) & RT_CMD_RX_ENABLE))
         g2_write_8(NIC(RT_CHIPCMD), RT_CMD_TX_ENABLE | RT_CMD_RX_ENABLE);
 
     //g2_write_32(NIC(RT_RXCONFIG), 0x00000e0a);
-    g2_write_32(NIC(RT_RXCONFIG), RX_CONFIG | 0x0000000a);
+    g2_write_32(NIC(RT_RXCONFIG), RX_CONFIG_DEFAULT | RT_RXC_APM | RT_RXC_AB);
     g2_write_16(NIC(RT_INTRSTATUS), 0xffff);
 }
 
@@ -691,7 +684,7 @@ static int rx_enq(int ring_offset, size_t pkt_size) {
         /* Receive buffer: temporary space to copy out received data */
 
 #ifdef USE_P2_AREA
-        rx_pkt[rxin].rxbuff = rxbuff + 32 + BEFORE + (rxbuff_pos | 0xa0000000) + (ring_offset & 31);
+        rx_pkt[rxin].rxbuff = rxbuff + 32 + BEFORE + (rxbuff_pos | MEM_AREA_P2_BASE) + (ring_offset & 31);
 #else
         rx_pkt[rxin].rxbuff = rxbuff + 32 + BEFORE + rxbuff_pos + (ring_offset & 31);
 #endif
@@ -816,7 +809,6 @@ void bba_unlock(void) {
     //sem_signal(&bba_rx_sema2);
 }
 
-static int bcolor;
 static void *bba_rx_threadfunc(void *dummy) {
     (void)dummy;
 
@@ -827,8 +819,6 @@ static void *bba_rx_threadfunc(void *dummy) {
         if(bba_rx_exit_thread)
             break;
 
-        bcolor = 255;
-        //vid_border_color(255, 255, 0);
         bba_lock();
 
         if(rxout != rxin) {
@@ -839,8 +829,6 @@ static void *bba_rx_threadfunc(void *dummy) {
             rxout = (rxout + 1) % MAX_PKTS;
         }
 
-        bcolor = 0;
-        //vid_border_color(0, 0, 0);
         bba_unlock();
     }
 
@@ -854,7 +842,6 @@ static void bba_rx(void) {
     uint32 rx_status;
     size_t pkt_size, ring_offset;
 
-    //vid_border_color(255, 0, 255);
     while(!(g2_read_8(NIC(RT_CHIPCMD)) & 1)) {
         /* Get frame size and status */
         ring_offset = rtl.cur_rx % RX_BUFFER_LEN;
@@ -892,8 +879,43 @@ static void bba_rx(void) {
             break;
         }
     }
+}
 
-    //vid_border_color(bcolor, bcolor, 0);
+static void bba_link_change(void) {
+
+    // If this is the first time, force a renegotiation.
+    if(!link_initial) {
+        g2_write_16(NIC(RT_MII_BMSR), g2_read_16(NIC(RT_MII_BMSR)) & ~(RT_MII_LINK | RT_MII_AN_COMPLETE));
+        dbglog(DBG_INFO, "bba: initial link change, redoing auto-neg\n");
+    }
+
+    // This should really be a bit more complete, but this
+    // should be sufficient.
+
+    // Is our link there?
+    if(g2_read_16(NIC(RT_MII_BMSR)) & RT_MII_LINK) {
+        // We must have just finished an auto-negotiation.
+        dbglog(DBG_INFO, "bba: link stable\n");
+
+        // The link is back.
+        link_stable = 1;
+    }
+    else {
+        if(link_initial)
+            dbglog(DBG_INFO, "bba: link lost\n");
+
+        // Do an auto-negotiation.
+        g2_write_16(NIC(RT_MII_BMCR),
+                    RT_MII_RESET |
+                    RT_MII_AN_ENABLE |
+                    RT_MII_AN_START);
+
+        // The link is gone.
+        link_stable = 0;
+    }
+
+    // We've done our initial link interrupt now.
+    link_initial = 1;
 }
 
 /* Ethernet IRQ handler */
@@ -902,7 +924,6 @@ static void bba_irq_hnd(uint32 code) {
 
     (void)code;
 
-    //vid_border_color(0, 255, 0);
     /* Acknowledge 8193 interrupt, except RX ACK bits. We'll handle
        those in the RX int handler. */
     intr = g2_read_16(NIC(RT_INTRSTATUS));
@@ -928,43 +949,7 @@ static void bba_irq_hnd(uint32 code) {
     }
 
     if(intr & RT_INT_LINK_CHANGE) {
-        // Get the MII media status reg.
-        uint32 bmsr = g2_read_16(NIC(RT_MII_BMSR));
-
-        // If this is the first time, force a renegotiation.
-        if(!link_initial) {
-            bmsr &= ~(RT_MII_LINK | RT_MII_AN_COMPLETE);
-            dbglog(DBG_INFO, "bba: initial link change, redoing auto-neg\n");
-        }
-
-        // This should really be a bit more complete, but this
-        // should be sufficient.
-
-        // Is our link there?
-        if(bmsr & RT_MII_LINK) {
-            // We must have just finished an auto-negotiation.
-            dbglog(DBG_INFO, "bba: link stable\n");
-
-            // The link is back.
-            link_stable = 1;
-        }
-        else {
-            if(link_initial)
-                dbglog(DBG_INFO, "bba: link lost\n");
-
-            // Do an auto-negotiation.
-            g2_write_16(NIC(RT_MII_BMCR),
-                        RT_MII_RESET |
-                        RT_MII_AN_ENABLE |
-                        RT_MII_AN_START);
-
-            // The link is gone.
-            link_stable = 0;
-        }
-
-        // We've done our initial link interrupt now.
-        link_initial = 1;
-
+        bba_link_change();
         hnd = 1;
     }
 
@@ -982,8 +967,6 @@ static void bba_irq_hnd(uint32 code) {
     if(!hnd) {
         dbglog(DBG_KDEBUG, "bba: spurious interrupt, status is %08x\n", intr);
     }
-
-    //vid_border_color(0, 0, 0);
 }
 
 /****************************************************************************/
