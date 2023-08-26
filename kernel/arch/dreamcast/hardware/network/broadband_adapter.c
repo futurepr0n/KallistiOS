@@ -224,7 +224,7 @@ static uint32 const txdesc[4] = {
 };
 
 /* Is the link stabilized? */
-static volatile int link_stable, link_initial;
+static volatile int link_stable;
 
 /* Receive callback */
 static eth_rx_callback_t eth_rx_callback;
@@ -270,7 +270,6 @@ static int bba_hw_init(void) {
     uint32 tmp;
 
     link_stable = 0;
-    link_initial = 0;
 
     /* Initialize GAPS */
     if(gaps_init() < 0)
@@ -883,12 +882,6 @@ static void bba_rx(void) {
 
 static void bba_link_change(void) {
 
-    // If this is the first time, force a renegotiation.
-    if(!link_initial) {
-        g2_write_16(NIC(RT_MII_BMSR), g2_read_16(NIC(RT_MII_BMSR)) & ~(RT_MII_LINK | RT_MII_AN_COMPLETE));
-        dbglog(DBG_INFO, "bba: initial link change, redoing auto-neg\n");
-    }
-
     // This should really be a bit more complete, but this
     // should be sufficient.
 
@@ -901,8 +894,7 @@ static void bba_link_change(void) {
         link_stable = 1;
     }
     else {
-        if(link_initial)
-            dbglog(DBG_INFO, "bba: link lost\n");
+        dbglog(DBG_INFO, "bba: link lost\n");
 
         // Do an auto-negotiation.
         g2_write_16(NIC(RT_MII_BMCR),
@@ -913,9 +905,6 @@ static void bba_link_change(void) {
         // The link is gone.
         link_stable = 0;
     }
-
-    // We've done our initial link interrupt now.
-    link_initial = 1;
 }
 
 /* Ethernet IRQ handler */
