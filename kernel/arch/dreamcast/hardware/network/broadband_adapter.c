@@ -18,6 +18,7 @@
 #include <dc/flashrom.h>
 #include <arch/irq.h>
 #include <arch/cache.h>
+#include <arch/memory.h>
 #include <kos/net.h>
 #include <kos/thread.h>
 #include <kos/sem.h>
@@ -213,14 +214,14 @@ struct {
 #define NIC(ADDR) (GAPS_BASE + 0x1700 + (ADDR))
 
 /* 8 and 32 bit access to the PCI MEMMAP space (configured by GAPS) */
-static uint32 const rtl_mem = 0xa0000000 + RTL_MEM;
+static uint32 const rtl_mem = MEM_AREA_P2_BASE + RTL_MEM;
 
 /* TX buffer pointers */
 static uint32 const txdesc[4] = {
-    0xa0000000 + RTL_MEM + TX_BUFFER_OFFSET,
-    0xa0000800 + RTL_MEM + TX_BUFFER_OFFSET,
-    0xa0001000 + RTL_MEM + TX_BUFFER_OFFSET,
-    0xa0001800 + RTL_MEM + TX_BUFFER_OFFSET,
+    MEM_AREA_P2_BASE + 0x0000 + RTL_MEM + TX_BUFFER_OFFSET,
+    MEM_AREA_P2_BASE + 0x0800 + RTL_MEM + TX_BUFFER_OFFSET,
+    MEM_AREA_P2_BASE + 0x1000 + RTL_MEM + TX_BUFFER_OFFSET,
+    MEM_AREA_P2_BASE + 0x1800 + RTL_MEM + TX_BUFFER_OFFSET,
 };
 
 /* Is the link stabilized? */
@@ -394,7 +395,7 @@ static int bba_hw_init(void) {
     rtl.cur_rx = 0;
 
     /* Enable receiving broadcast and physical match packets */
-    g2_write_32(NIC(RT_RXCONFIG), g2_read_32(NIC(RT_RXCONFIG)) | 0x0000000a);
+    g2_write_32(NIC(RT_RXCONFIG), g2_read_32(NIC(RT_RXCONFIG)) | RT_RXC_APM | RT_RXC_AB);
 
     return 0;
 }
@@ -839,7 +840,7 @@ static void bba_rx(void) {
     uint32 rx_status;
     size_t pkt_size, ring_offset;
 
-    while(!(g2_read_8(NIC(RT_CHIPCMD)) & 1)) {
+    while(!(g2_read_8(NIC(RT_CHIPCMD)) & RT_CMD_RX_BUF_EMPTY)) {
         /* Get frame size and status */
         ring_offset = rtl.cur_rx % RX_BUFFER_LEN;
         rx_status = g2_read_32(rtl_mem + ring_offset);
