@@ -880,7 +880,6 @@ static void bba_rx(void) {
 }
 
 static void bba_link_change(void) {
-
     // This should really be a bit more complete, but this
     // should be sufficient.
 
