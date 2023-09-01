@@ -27,10 +27,11 @@
 
 #define RTL_MEM                 (0x1840000)
 
-#define RX_BUFFER_SHIFT          1 /* 0 : 8Kb, 1 : 16Kb, 2 : 32Kb, 3 : 64Kb */
+#define RX_NOWRAP               RT_RXC_WRAP /* Default to no wrapping */
+#define RX_BUFFER_SHIFT         1 /* 0 : 8Kb, 1 : 16Kb, 2 : 32Kb, 3 : 64Kb */
 
 #define RX_CONFIG_DEFAULT       (RT_ERTH(0) | RT_RXC_RXFTH(0) | \
-                                RT_RXC_RBLEN(RX_BUFFER_SHIFT) | RT_RXC_MXDMA(6) | RT_RXC_WRAP)
+                                RT_RXC_RBLEN(RX_BUFFER_SHIFT) | RT_RXC_MXDMA(6) | RX_NOWRAP)
 
 #define RX_BUFFER_LEN           (0x2000 << RX_BUFFER_SHIFT)
 
