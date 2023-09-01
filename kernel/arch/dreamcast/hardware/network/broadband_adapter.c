@@ -44,9 +44,6 @@
 /* This was originally set as ASIC_IRQB */
 #define BBA_ASIC_IRQ ASIC_IRQ_DEFAULT
 
-/* Use a customized g2_read_block function */
-#define FAST_G2_READ
-
 /* DMA transfer will be used only if the amount of bytes exceeds that threshold */
 #define DMA_THRESHOLD 128 // looks like a good value
 
@@ -425,14 +422,6 @@ static void bba_hw_shutdown(void) {
     asic_evt_set_handler(ASIC_EVT_EXP_PCI, NULL);
 }
 
-
-//#define g2_read_block_8(a, b, len) memcpy(a, b, len)
-//#define g2_read_block_8(a, b, len) memcpy4(a, b, (len) + 3)
-//#define g2_read_block_8(a, b, len) sq_cpy(a, b, (len) + 31)
-//#define g2_read_block_8(a, b, len) g2_read_block_32(a, b, ((len)+3) >> 2)
-#ifdef FAST_G2_READ
-#define g2_read_block_8 my_g2_read_block_8
-
 /*
    G2 bus cycles must not be interrupted by IRQs or G2 DMA.
    The following paired macros will take the necessary precautions.
@@ -440,31 +429,6 @@ static void bba_hw_shutdown(void) {
 
 #define DMAC_CHCR1 *((vuint32 *)0xffa0001c)
 #define DMAC_CHCR3 *((vuint32 *)0xffa0003c)
-
-#if 0
-
-/* this version stores also CHCR1 state and stop it, doesn't seem to make
-   any difference so I removed it for now */
-#define G2_LOCK(OLD1, OLD2) \
-    do { \
-        OLD1 = irq_disable(); \
-        /* suspend any G2 DMA here... */ \
-        OLD2 = (DMAC_CHCR3&0xffff) + (DMAC_CHCR1 <<16); \
-        DMAC_CHCR3 = (OLD2&0xffff) & ~1; \
-        DMAC_CHCR1 = (OLD2>>16) & ~1; \
-        while((*(vuint32 *)0xa05f688c) & 0x20) \
-            ; \
-    } while(0)
-
-#define G2_UNLOCK(OLD1, OLD2) \
-    do { \
-        /* resume any G2 DMA here... */ \
-        DMAC_CHCR3 = (OLD2&0xffff); \
-        DMAC_CHCR1 = (OLD2>>16); \
-        irq_restore(OLD1); \
-    } while(0)
-
-#else
 
 #define G2_LOCK(OLD1, OLD2) \
     do { \
@@ -482,22 +446,14 @@ static void bba_hw_shutdown(void) {
         DMAC_CHCR3 = OLD2; \
         irq_restore(OLD1); \
     } while(0)
-#endif
 
-static void g2_read_block_8(uint8 *dst, uint8 *src, int len) {
+static void g2_read_block_8_fast(uint8 *dst, uint8 *src, int len) {
     if(len <= 0)
         return;
 
     uint32 old1, old2;
 
     G2_LOCK(old1, old2);
-
-    /* This is in case dst is not multiple of 4, which never happens here */
-    /*     while( (((uint32)dst)&3) ) { */
-    /*       *dst++ = *src++; */
-    /*       if(!--len) */
-    /*  return; */
-    /*     } */
 
     uint32 * d = (uint32 *) dst;
     uint32 * s = (uint32 *) src;
@@ -528,7 +484,6 @@ static void g2_read_block_8(uint8 *dst, uint8 *src, int len) {
 
     G2_UNLOCK(old1, old2);
 }
-#endif
 
 
 #define RXBSZ    (64*1024) /* must be a power of two */
@@ -538,10 +493,7 @@ static struct pkt {
     uint8 * rxbuff;
 } rx_pkt[MAX_PKTS];
 
-#define BEFORE 0 // 32*1024
-#define AFTER  0 // (BEFORE + 32*1024)
-
-static uint8 rxbuff[RXBSZ + 2 * 1600 + AFTER] __attribute__((aligned(32)));
+static uint8 rxbuff[RXBSZ + 2 * 1600] __attribute__((aligned(32)));
 static uint32 rxbuff_pos;
 static int rxin;
 static int rxout;
@@ -638,11 +590,10 @@ static int bba_copy_dma(uint8 * dst, uint32 s, int len) {
         return 0;
     }
     else {
-        g2_read_block_8(dst, src, len);
+        g2_read_block_8_fast(dst, src, len);
         return !dma_used;
     }
 }
-#undef g2_read_block_8
 
 /* Utility function to copy out a some data from the ring buffer into an SH-4
    buffer. This is done to make sure the buffers don't overflow. */
@@ -672,19 +623,16 @@ static int rx_enq(int ring_offset, size_t pkt_size) {
     /* If there's no one to receive it, don't bother. */
     if(eth_rx_callback) {
         if(rxin != rxout &&
-                (((rx_pkt[rxout].rxbuff - (rxbuff + 32 + BEFORE)) - rxbuff_pos) & (RXBSZ - 1)) < pkt_size + 2048) {
-            /*       printf("diff %d, %d\n", (( (rx_pkt[rxout].rxbuff - rxbuff) - rxbuff_pos ) & (RXBSZ-1)), */
-            /*       pkt_size); */
-            //dbglog(DBG_KDEBUG, "rx_enq: lagging\n");
+                (((rx_pkt[rxout].rxbuff - (rxbuff + 32)) - rxbuff_pos) & (RXBSZ - 1)) < pkt_size + 2048) {
             return -1;
         }
 
         /* Receive buffer: temporary space to copy out received data */
 
 #ifdef USE_P2_AREA
-        rx_pkt[rxin].rxbuff = rxbuff + 32 + BEFORE + (rxbuff_pos | MEM_AREA_P2_BASE) + (ring_offset & 31);
+        rx_pkt[rxin].rxbuff = rxbuff + 32 + (rxbuff_pos | MEM_AREA_P2_BASE) + (ring_offset & 31);
 #else
-        rx_pkt[rxin].rxbuff = rxbuff + 32 + BEFORE + rxbuff_pos + (ring_offset & 31);
+        rx_pkt[rxin].rxbuff = rxbuff + 32 + rxbuff_pos + (ring_offset & 31);
 #endif
 
 
@@ -704,19 +652,6 @@ static int bba_rtx(const uint8 * pkt, int len, int wait)
 static int bba_tx(const uint8 * pkt, int len, int wait)
 #endif
 {
-    /*
-    int i;
-
-    dbglog(DBG_KDEBUG,"Transmitting packet:\r\n");
-    for(i=0; i<len; i++) {
-        dbglog(DBG_KDEBUG,"%02x ", pkt[i]);
-        if(i && !(i % 16))
-            printf("\r\n");
-    }
-    dbglog(DBG_KDEBUG,"\r\n");
-    */
-
-    //wait = BBA_TX_WAIT;
     if(!link_stable) {
         if(wait == BBA_TX_WAIT) {
             while(!link_stable)
@@ -779,9 +714,6 @@ int bba_tx(const uint8 * pkt, int len, int wait) {
     int res;
 
     if(irq_inside_int()) {
-        /*     printf("bba_tx called from an irq !\n"); */
-        /*     return 0; */
-        //return bba_rtx(pkt, len, wait);
         if(sem_trywait(&tx_sema)) {
             //printf("bba_tx called from an irq while a thread was running it !\n");
             return BBA_TX_OK;   /* sorry guys ... */
@@ -851,12 +783,6 @@ static void bba_rx(void) {
             dbglog(DBG_KDEBUG, "bba: early receive triggered\n");
             break;
         }
-
-        /*     if( ( ( g2_read_16(NIC(RT_RXBUFHEAD)) - ring_offset ) & (RX_BUFFER_LEN-1)) < */
-        /*   ( (rx_size+4+3) & (RX_BUFFER_LEN-3-1) )) { */
-        /*       //dbglog(DBG_KDEBUG, "bba: oops\n"); */
-        /*       break; */
-        /*     } */
 
         if((rx_status & 1) && (pkt_size <= 1514)) {
             /* Add it to the rx queue */
