@@ -216,10 +216,10 @@ static uint32 const rtl_mem = MEM_AREA_P2_BASE + RTL_MEM;
 
 /* TX buffer pointers */
 static uint32 const txdesc[TX_NB_BUFFERS] = {
+    MEM_AREA_P2_BASE + (TX_BUFFER_LEN * 0) + RTL_MEM + TX_BUFFER_OFFSET,
     MEM_AREA_P2_BASE + (TX_BUFFER_LEN * 1) + RTL_MEM + TX_BUFFER_OFFSET,
     MEM_AREA_P2_BASE + (TX_BUFFER_LEN * 2) + RTL_MEM + TX_BUFFER_OFFSET,
     MEM_AREA_P2_BASE + (TX_BUFFER_LEN * 3) + RTL_MEM + TX_BUFFER_OFFSET,
-    MEM_AREA_P2_BASE + (TX_BUFFER_LEN * 4) + RTL_MEM + TX_BUFFER_OFFSET,
 };
 
 /* Is the link stabilized? */
