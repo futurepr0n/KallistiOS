@@ -29,15 +29,17 @@ __BEGIN_DECLS
 
     @{
 */
-#define BARA (*((vuint32*)0xFF200000))  /**< \brief BARA register. */
-#define BASRA (*((vuint8*)0xFF000014))  /**< \brief BASRA register. */
-#define BAMRA (*((vuint8*)0xFF200004))  /**< \brief BAMRA register. */
-#define BBRA (*((vuint16*)0xFF200008))  /**< \brief BBRA register. */
-#define BARB (*((vuint32*)0xFF20000C))  /**< \brief BARB register. */
-#define BASRB (*((vuint8*)0xFF000018))  /**< \brief BASRB register. */
-#define BAMRB (*((vuint8*)0xFF200010))  /**< \brief BAMRB register. */
-#define BBRB (*((vuint16*)0xFF200014))  /**< \brief BBRB register. */
-#define BRCR (*((vuint16*)0xFF200020))  /**< \brief BRCR register. */
+#define BARA (*((vuint32*)0xFF200000))  /**< \brief Break Address A */
+#define BASRA (*((vuint8*)0xFF000014))  /**< \brief Break ASID */
+#define BAMRA (*((vuint8*)0xFF200004))  /**< \brief Break Address Mask */
+#define BBRA (*((vuint16*)0xFF200008))  /**< \brief Break Bus Cycle */
+#define BARB (*((vuint32*)0xFF20000C))  /**< \brief Break Address */
+#define BASRB (*((vuint8*)0xFF000018))  /**< \brief Break ASID */
+#define BAMRB (*((vuint8*)0xFF200010))  /**< \brief Break Address Mask */
+#define BBRB (*((vuint16*)0xFF200014))  /**< \brief Break Bus Cycle */
+#define BDRB (*((vuint32*)0xFF200018))  /**< \brief Break Data */
+#define BDMRB (*((vuint16*)0xFF20001C)) /**< \brief Break Data Mask */
+#define BRCR (*((vuint16*)0xFF200020))  /**< \brief Break Control */
 /** @} */
 
 /* These are inlined to avoid complications with using them */
