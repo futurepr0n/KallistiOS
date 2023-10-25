@@ -1,16 +1,17 @@
 /* KallistiOS ##version##
 
    kernel/arch/dreamcast/include/dc/ubc.h
-   (C)2002 Megan Potter
-
+   Copyright (C) 2002 Megan Potter
+   Copyright (C) 2023 Falco Girgis
 */
 
 /** \file   dc/ubc.h
-    \brief  User-break controller support.
+    \brief  User Break Controller Driver 
 
-    This file defines some functionality for using the SH4 UBC.
+    This file provides a driver and API around the SH4's UBC. 
 
     \author Megan Potter
+    \author Falco Girgis
 */
 
 #ifndef __DC_UBC_H
@@ -21,25 +22,21 @@ __BEGIN_DECLS
 
 #include <arch/types.h>
 
-/* From the SH-4 PDF */
-/** \defgroup   ubc_regs    UBC Registers
-
-    These registers are as documented in the SH4 manual. Consult it for more
-    information.
-
+/** \name  Registers
+    \brief Special-function registers for configuring the UBC
     @{
 */
-#define BARA (*((vuint32*)0xFF200000))  /**< \brief Break Address A */
-#define BASRA (*((vuint8*)0xFF000014))  /**< \brief Break ASID */
-#define BAMRA (*((vuint8*)0xFF200004))  /**< \brief Break Address Mask */
-#define BBRA (*((vuint16*)0xFF200008))  /**< \brief Break Bus Cycle */
-#define BARB (*((vuint32*)0xFF20000C))  /**< \brief Break Address */
-#define BASRB (*((vuint8*)0xFF000018))  /**< \brief Break ASID */
-#define BAMRB (*((vuint8*)0xFF200010))  /**< \brief Break Address Mask */
-#define BBRB (*((vuint16*)0xFF200014))  /**< \brief Break Bus Cycle */
-#define BDRB (*((vuint32*)0xFF200018))  /**< \brief Break Data */
-#define BDMRB (*((vuint16*)0xFF20001C)) /**< \brief Break Data Mask */
-#define BRCR (*((vuint16*)0xFF200020))  /**< \brief Break Control */
+#define BARA    (*((vuint32*)0xFF200000))   /**< \brief Break Address A */
+#define BASRA   (*((vuint8*)0xFF000014))    /**< \brief Break ASID */
+#define BAMRA   (*((vuint8*)0xFF200004))    /**< \brief Break Address Mask */
+#define BBRA    (*((vuint16*)0xFF200008))   /**< \brief Break Bus Cycle */
+#define BARB    (*((vuint32*)0xFF20000C))   /**< \brief Break Address */
+#define BASRB   (*((vuint8*)0xFF000018))    /**< \brief Break ASID */
+#define BAMRB   (*((vuint8*)0xFF200010))    /**< \brief Break Address Mask */
+#define BBRB    (*((vuint16*)0xFF200014))   /**< \brief Break Bus Cycle */
+#define BDRB    (*((vuint32*)0xFF200018))   /**< \brief Break Data */
+#define BDMRB   (*((vuint16*)0xFF20001C))   /**< \brief Break Data Mask */
+#define BRCR    (*((vuint16*)0xFF200020))   /**< \brief Break Control */
 /** @} */
 
 /* These are inlined to avoid complications with using them */
