@@ -5,10 +5,13 @@
    Copyright (C) 2023 Falco Girgis
 */
 
-/** \file   dc/ubc.h
-    \brief  User Break Controller Driver 
+/** \file    dc/ubc.h
+    \brief   User Break Controller Driver 
+    \ingroup ubc
 
     This file provides a driver and API around the SH4's UBC. 
+
+    \sa arch/gdb.h
 
     \author Megan Potter
     \author Falco Girgis
@@ -20,10 +23,21 @@
 #include <sys/cdefs.h>
 __BEGIN_DECLS
 
+#include <stdint.h>
 #include <arch/types.h>
 
-/** \name  Registers
-    \brief Special-function registers for configuring the UBC
+/** \defgroup ubc   User Break Controller (UBC)
+
+    \note 
+    This API has been inlined to avoid complications with using it.
+*/
+
+/** \defgroup ubc_regs  Registers
+    \brief    UBC Control Registers 
+    \ingroup  ubc
+
+    Special-function registers for configuring the UBC.
+    
     @{
 */
 #define BARA    (*((vuint32*)0xFF200000))   /**< \brief Break Address A */
@@ -39,9 +53,11 @@ __BEGIN_DECLS
 #define BRCR    (*((vuint16*)0xFF200020))   /**< \brief Break Control */
 /** @} */
 
-/* These are inlined to avoid complications with using them */
+/** \brief  Pause after setting UBC parameters. 
+ 
+    Required delay after changing the UBC's configuration.
 
-/** \brief  Pause after setting UBC parameters. */
+ */
 static inline void ubc_pause(void) {
     __asm__ __volatile__("nop\n"
                          "nop\n"
@@ -66,12 +82,12 @@ static inline void ubc_disable_all(void) {
 /** \brief  Set a UBC data-write breakpoint at the given address.
     \param  address         The address to set the breakpoint at
 */
-static inline void ubc_break_data_write(uint32 address) {
+static inline void ubc_break_data_write(uintptr_t address) {
     BASRA = 0;      /* ASID = 0 */
-    BARA = address;     /* Break address */
+    BARA = address; /* Break address */
     BAMRA = 4;      /* Mask the ASID */
     BRCR = 0;       /* Nothing special, clear all flags */
-    BBRA = 0x28;        /* Operand write cycle, no size constraint */
+    BBRA = 0x28;    /* Operand write cycle, no size constraint */
     ubc_pause();
 }
 
@@ -79,7 +95,7 @@ static inline void ubc_break_data_write(uint32 address) {
     \param  address         The address to set the breakpoint at.
     \param  use_dbr         Use the DBR register as the base for the exception.
 */
-static inline void ubc_break_inst(uint32 address, int use_dbr) {
+static inline void ubc_break_inst(uintptr_t address, int use_dbr) {
     BASRA = 0;      /* ASID = 0 */
     BARA = address; /* Break address */
     BAMRA = 4;      /* Mask the ASID */
