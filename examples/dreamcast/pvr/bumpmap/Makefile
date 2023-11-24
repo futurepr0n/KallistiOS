@@ -1,5 +1,6 @@
 TARGET = bump.elf
 OBJS = bump.o romdisk.o
+KOS_ROMDISK_DIR = romdisk
 
 all: rm-elf $(TARGET)
 
@@ -15,10 +16,6 @@ $(TARGET): $(OBJS)
 	kos-cc -o $(TARGET) $(OBJS) -lkmg -lkosutils
 
 romdisk.img: romdisk/bricks.kmg romdisk/bumpmap.raw
-	$(KOS_GENROMFS) -f romdisk.img -d romdisk -v -x .keepme
-
-romdisk.o: romdisk.img
-	$(KOS_BASE)/utils/bin2o/bin2o romdisk.img romdisk romdisk.o
 
 romdisk/bricks.kmg: bricks.png
 	$(KOS_BASE)/utils/vqenc/vqenc -t -v -q -k bricks.png
@@ -28,7 +25,7 @@ romdisk/bumpmap.raw: bumpmap.png
 	$(KOS_BASE)/utils/dcbumpgen/dcbumpgen $+ $@
 
 run: $(TARGET)
-	$(KOS_LOADER) $(TARGET) -n
+	$(KOS_LOADER) $(TARGET)
 
 dist: $(TARGET)
 	-rm -f $(OBJS) romdisk.img

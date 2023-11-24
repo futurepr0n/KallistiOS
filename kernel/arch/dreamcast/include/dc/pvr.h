@@ -47,7 +47,7 @@ __BEGIN_DECLS
     compatible pointers and can be used directly in place of ta_txr_map().
 
     Not that anyone probably even remembers the old TA system anymore... */
-typedef void * pvr_ptr_t;
+typedef void *pvr_ptr_t;
 
 /** \brief  PVR list specification.
 
@@ -56,7 +56,7 @@ typedef void * pvr_ptr_t;
 
     \see    pvr_lists
 */
-typedef uint32 pvr_list_t;
+typedef uint32_t pvr_list_t;
 
 /** \brief  PVR polygon context.
 
@@ -562,7 +562,7 @@ typedef struct {
 /** @} */
 
 #define PVR_MODIFIER_CHEAP_SHADOW   0
-#define PVR_MODIFIER_NORMAL     1
+#define PVR_MODIFIER_NORMAL         1
 
 /** \defgroup pvr_mod_modes         Modifier volume mode parameters
 
@@ -586,14 +586,14 @@ typedef struct {
     \headerfile dc/pvr.h
 */
 typedef struct {
-    uint32  cmd;                /**< \brief TA command */
-    uint32  mode1;              /**< \brief Parameter word 1 */
-    uint32  mode2;              /**< \brief Parameter word 2 */
-    uint32  mode3;              /**< \brief Parameter word 3 */
-    uint32  d1;                 /**< \brief Dummy value */
-    uint32  d2;                 /**< \brief Dummy value */
-    uint32  d3;                 /**< \brief Dummy value */
-    uint32  d4;                 /**< \brief Dummy value */
+    uint32_t cmd;                /**< \brief TA command */
+    uint32_t mode1;              /**< \brief Parameter word 1 */
+    uint32_t mode2;              /**< \brief Parameter word 2 */
+    uint32_t mode3;              /**< \brief Parameter word 3 */
+    uint32_t d1;                 /**< \brief Dummy value */
+    uint32_t d2;                 /**< \brief Dummy value */
+    uint32_t d3;                 /**< \brief Dummy value */
+    uint32_t d4;                 /**< \brief Dummy value */
 } pvr_poly_hdr_t;
 
 /** \brief  PVR polygon header with intensity color.
@@ -603,14 +603,14 @@ typedef struct {
     \headerfile dc/pvr.h
 */
 typedef struct {
-    uint32  cmd;                /**< \brief TA command */
-    uint32  mode1;              /**< \brief Parameter word 1 */
-    uint32  mode2;              /**< \brief Parameter word 2 */
-    uint32  mode3;              /**< \brief Parameter word 3 */
-    float   a;                  /**< \brief Face color alpha component */
-    float   r;                  /**< \brief Face color red component */
-    float   g;                  /**< \brief Face color green component */
-    float   b;                  /**< \brief Face color blue component */
+    uint32_t cmd;                /**< \brief TA command */
+    uint32_t mode1;              /**< \brief Parameter word 1 */
+    uint32_t mode2;              /**< \brief Parameter word 2 */
+    uint32_t mode3;              /**< \brief Parameter word 3 */
+    float   a;                   /**< \brief Face color alpha component */
+    float   r;                   /**< \brief Face color red component */
+    float   g;                   /**< \brief Face color green component */
+    float   b;                   /**< \brief Face color blue component */
 } pvr_poly_ic_hdr_t;
 
 /** \brief  PVR polygon header to be used with modifier volumes.
@@ -621,14 +621,14 @@ typedef struct {
     \headerfile dc/pvr.h
 */
 typedef struct {
-    uint32  cmd;                /**< \brief TA command */
-    uint32  mode1;              /**< \brief Parameter word 1 */
-    uint32  mode2_0;            /**< \brief Parameter word 2 (outside volume) */
-    uint32  mode3_0;            /**< \brief Parameter word 3 (outside volume) */
-    uint32  mode2_1;            /**< \brief Parameter word 2 (inside volume) */
-    uint32  mode3_1;            /**< \brief Parameter word 3 (inside volume) */
-    uint32  d1;                 /**< \brief Dummy value */
-    uint32  d2;                 /**< \brief Dummy value */
+    uint32_t cmd;                /**< \brief TA command */
+    uint32_t mode1;              /**< \brief Parameter word 1 */
+    uint32_t mode2_0;            /**< \brief Parameter word 2 (outside volume) */
+    uint32_t mode3_0;            /**< \brief Parameter word 3 (outside volume) */
+    uint32_t mode2_1;            /**< \brief Parameter word 2 (inside volume) */
+    uint32_t mode3_1;            /**< \brief Parameter word 3 (inside volume) */
+    uint32_t d1;                 /**< \brief Dummy value */
+    uint32_t d2;                 /**< \brief Dummy value */
 } pvr_poly_mod_hdr_t;
 
 /** \brief  PVR polygon header specifically for sprites.
@@ -639,14 +639,14 @@ typedef struct {
     \headerfile dc/pvr.h
 */
 typedef struct {
-    uint32  cmd;                /**< \brief TA command */
-    uint32  mode1;              /**< \brief Parameter word 1 */
-    uint32  mode2;              /**< \brief Parameter word 2 */
-    uint32  mode3;              /**< \brief Parameter word 3 */
-    uint32  argb;               /**< \brief Sprite face color */
-    uint32  oargb;              /**< \brief Sprite offset color */
-    uint32  d1;                 /**< \brief Dummy value */
-    uint32  d2;                 /**< \brief Dummy value */
+    uint32_t cmd;                /**< \brief TA command */
+    uint32_t mode1;              /**< \brief Parameter word 1 */
+    uint32_t mode2;              /**< \brief Parameter word 2 */
+    uint32_t mode3;              /**< \brief Parameter word 3 */
+    uint32_t argb;               /**< \brief Sprite face color */
+    uint32_t oargb;              /**< \brief Sprite offset color */
+    uint32_t d1;                 /**< \brief Dummy value */
+    uint32_t d2;                 /**< \brief Dummy value */
 } pvr_sprite_hdr_t;
 
 /** \brief  Modifier volume header.
@@ -657,14 +657,14 @@ typedef struct {
     \headerfile dc/pvr.h
 */
 typedef struct {
-    uint32  cmd;                /**< \brief TA command */
-    uint32  mode1;              /**< \brief Parameter word 1 */
-    uint32  d1;                 /**< \brief Dummy value */
-    uint32  d2;                 /**< \brief Dummy value */
-    uint32  d3;                 /**< \brief Dummy value */
-    uint32  d4;                 /**< \brief Dummy value */
-    uint32  d5;                 /**< \brief Dummy value */
-    uint32  d6;                 /**< \brief Dummy value */
+    uint32_t cmd;                /**< \brief TA command */
+    uint32_t mode1;              /**< \brief Parameter word 1 */
+    uint32_t d1;                 /**< \brief Dummy value */
+    uint32_t d2;                 /**< \brief Dummy value */
+    uint32_t d3;                 /**< \brief Dummy value */
+    uint32_t d4;                 /**< \brief Dummy value */
+    uint32_t d5;                 /**< \brief Dummy value */
+    uint32_t d6;                 /**< \brief Dummy value */
 } pvr_mod_hdr_t;
 
 /** \brief  Generic PVR vertex type.
@@ -676,14 +676,14 @@ typedef struct {
     \headerfile dc/pvr.h
 */
 typedef struct {
-    uint32  flags;              /**< \brief TA command (vertex flags) */
-    float   x;                  /**< \brief X coordinate */
-    float   y;                  /**< \brief Y coordinate */
-    float   z;                  /**< \brief Z coordinate */
-    float   u;                  /**< \brief Texture U coordinate */
-    float   v;                  /**< \brief Texture V coordinate */
-    uint32  argb;               /**< \brief Vertex color */
-    uint32  oargb;              /**< \brief Vertex offset color */
+    uint32_t flags;              /**< \brief TA command (vertex flags) */
+    float   x;                   /**< \brief X coordinate */
+    float   y;                   /**< \brief Y coordinate */
+    float   z;                   /**< \brief Z coordinate */
+    float   u;                   /**< \brief Texture U coordinate */
+    float   v;                   /**< \brief Texture V coordinate */
+    uint32_t argb;               /**< \brief Vertex color */
+    uint32_t oargb;              /**< \brief Vertex offset color */
 } pvr_vertex_t;
 
 /** \brief  PVR vertex type: Non-textured, packed color, affected by modifier
@@ -695,14 +695,14 @@ typedef struct {
     \headerfile dc/pvr.h
 */
 typedef struct {
-    uint32  flags;              /**< \brief TA command (vertex flags) */
-    float   x;                  /**< \brief X coordinate */
-    float   y;                  /**< \brief Y coordinate */
-    float   z;                  /**< \brief Z coordinate */
-    uint32  argb0;              /**< \brief Vertex color (outside volume) */
-    uint32  argb1;              /**< \brief Vertex color (inside volume) */
-    uint32  d1;                 /**< \brief Dummy value */
-    uint32  d2;                 /**< \brief Dummy value */
+    uint32_t flags;              /**< \brief TA command (vertex flags) */
+    float   x;                   /**< \brief X coordinate */
+    float   y;                   /**< \brief Y coordinate */
+    float   z;                   /**< \brief Z coordinate */
+    uint32_t argb0;              /**< \brief Vertex color (outside volume) */
+    uint32_t argb1;              /**< \brief Vertex color (inside volume) */
+    uint32_t d1;                 /**< \brief Dummy value */
+    uint32_t d2;                 /**< \brief Dummy value */
 } pvr_vertex_pcm_t;
 
 /** \brief  PVR vertex type: Textured, packed color, affected by modifer volume.
@@ -714,22 +714,22 @@ typedef struct {
     \headerfile dc/pvr.h
 */
 typedef struct {
-    uint32  flags;              /**< \brief TA command (vertex flags) */
+    uint32_t flags;              /**< \brief TA command (vertex flags) */
     float   x;                  /**< \brief X coordinate */
     float   y;                  /**< \brief Y coordinate */
     float   z;                  /**< \brief Z coordinate */
     float   u0;                 /**< \brief Texture U coordinate (outside) */
     float   v0;                 /**< \brief Texture V coordinate (outside) */
-    uint32  argb0;              /**< \brief Vertex color (outside) */
-    uint32  oargb0;             /**< \brief Vertex offset color (outside) */
+    uint32_t argb0;              /**< \brief Vertex color (outside) */
+    uint32_t oargb0;             /**< \brief Vertex offset color (outside) */
     float   u1;                 /**< \brief Texture U coordinate (inside) */
     float   v1;                 /**< \brief Texture V coordinate (inside) */
-    uint32  argb1;              /**< \brief Vertex color (inside) */
-    uint32  oargb1;             /**< \brief Vertex offset color (inside) */
-    uint32  d1;                 /**< \brief Dummy value */
-    uint32  d2;                 /**< \brief Dummy value */
-    uint32  d3;                 /**< \brief Dummy value */
-    uint32  d4;                 /**< \brief Dummy value */
+    uint32_t argb1;              /**< \brief Vertex color (inside) */
+    uint32_t oargb1;             /**< \brief Vertex offset color (inside) */
+    uint32_t d1;                 /**< \brief Dummy value */
+    uint32_t d2;                 /**< \brief Dummy value */
+    uint32_t d3;                 /**< \brief Dummy value */
+    uint32_t d4;                 /**< \brief Dummy value */
 } pvr_vertex_tpcm_t;
 
 /** \brief  PVR vertex type: Textured sprite.
@@ -745,22 +745,22 @@ typedef struct {
     \headerfile dc/pvr.h
 */
 typedef struct {
-    uint32  flags;              /**< \brief TA command (vertex flags) */
-    float   ax;                 /**< \brief First X coordinate */
-    float   ay;                 /**< \brief First Y coordinate */
-    float   az;                 /**< \brief First Z coordinate */
-    float   bx;                 /**< \brief Second X coordinate */
-    float   by;                 /**< \brief Second Y coordinate */
-    float   bz;                 /**< \brief Second Z coordinate */
-    float   cx;                 /**< \brief Third X coordinate */
-    float   cy;                 /**< \brief Third Y coordinate */
-    float   cz;                 /**< \brief Third Z coordinate */
-    float   dx;                 /**< \brief Fourth X coordinate */
-    float   dy;                 /**< \brief Fourth Y coordinate */
-    uint32 dummy;               /**< \brief Dummy value */
-    uint32 auv;                 /**< \brief First U/V texture coordinates */
-    uint32 buv;                 /**< \brief Second U/V texture coordinates */
-    uint32 cuv;                 /**< \brief Third U/V texture coordinates */
+    uint32_t flags;               /**< \brief TA command (vertex flags) */
+    float   ax;                   /**< \brief First X coordinate */
+    float   ay;                   /**< \brief First Y coordinate */
+    float   az;                   /**< \brief First Z coordinate */
+    float   bx;                   /**< \brief Second X coordinate */
+    float   by;                   /**< \brief Second Y coordinate */
+    float   bz;                   /**< \brief Second Z coordinate */
+    float   cx;                   /**< \brief Third X coordinate */
+    float   cy;                   /**< \brief Third Y coordinate */
+    float   cz;                   /**< \brief Third Z coordinate */
+    float   dx;                   /**< \brief Fourth X coordinate */
+    float   dy;                   /**< \brief Fourth Y coordinate */
+    uint32_t dummy;               /**< \brief Dummy value */
+    uint32_t auv;                 /**< \brief First U/V texture coordinates */
+    uint32_t buv;                 /**< \brief Second U/V texture coordinates */
+    uint32_t cuv;                 /**< \brief Third U/V texture coordinates */
 } pvr_sprite_txr_t;
 
 /** \brief  PVR vertex type: Untextured sprite.
@@ -769,22 +769,22 @@ typedef struct {
     related commands to draw untextured sprites (aka, quads).
 */
 typedef struct {
-    uint32  flags;              /**< \brief TA command (vertex flags) */
-    float   ax;                 /**< \brief First X coordinate */
-    float   ay;                 /**< \brief First Y coordinate */
-    float   az;                 /**< \brief First Z coordinate */
-    float   bx;                 /**< \brief Second X coordinate */
-    float   by;                 /**< \brief Second Y coordinate */
-    float   bz;                 /**< \brief Second Z coordinate */
-    float   cx;                 /**< \brief Third X coordinate */
-    float   cy;                 /**< \brief Third Y coordinate */
-    float   cz;                 /**< \brief Third Z coordinate */
-    float   dx;                 /**< \brief Fourth X coordinate */
-    float   dy;                 /**< \brief Fourth Y coordinate */
-    uint32  d1;                 /**< \brief Dummy value */
-    uint32  d2;                 /**< \brief Dummy value */
-    uint32  d3;                 /**< \brief Dummy value */
-    uint32  d4;                 /**< \brief Dummy value */
+    uint32_t flags;              /**< \brief TA command (vertex flags) */
+    float   ax;                  /**< \brief First X coordinate */
+    float   ay;                  /**< \brief First Y coordinate */
+    float   az;                  /**< \brief First Z coordinate */
+    float   bx;                  /**< \brief Second X coordinate */
+    float   by;                  /**< \brief Second Y coordinate */
+    float   bz;                  /**< \brief Second Z coordinate */
+    float   cx;                  /**< \brief Third X coordinate */
+    float   cy;                  /**< \brief Third Y coordinate */
+    float   cz;                  /**< \brief Third Z coordinate */
+    float   dx;                  /**< \brief Fourth X coordinate */
+    float   dy;                  /**< \brief Fourth Y coordinate */
+    uint32_t d1;                 /**< \brief Dummy value */
+    uint32_t d2;                 /**< \brief Dummy value */
+    uint32_t d3;                 /**< \brief Dummy value */
+    uint32_t d4;                 /**< \brief Dummy value */
 } pvr_sprite_col_t;
 
 /** \brief  PVR vertex type: Modifier volume.
@@ -793,22 +793,22 @@ typedef struct {
     triangular modifier areas.
 */
 typedef struct {
-    uint32  flags;              /**< \brief TA command (vertex flags) */
-    float   ax;                 /**< \brief First X coordinate */
-    float   ay;                 /**< \brief First Y coordinate */
-    float   az;                 /**< \brief First Z coordinate */
-    float   bx;                 /**< \brief Second X coordinate */
-    float   by;                 /**< \brief Second Y coordinate */
-    float   bz;                 /**< \brief Second Z coordinate */
-    float   cx;                 /**< \brief Third X coordinate */
-    float   cy;                 /**< \brief Third Y coordinate */
-    float   cz;                 /**< \brief Third Z coordinate */
-    uint32  d1;                 /**< \brief Dummy value */
-    uint32  d2;                 /**< \brief Dummy value */
-    uint32  d3;                 /**< \brief Dummy value */
-    uint32  d4;                 /**< \brief Dummy value */
-    uint32  d5;                 /**< \brief Dummy value */
-    uint32  d6;                 /**< \brief Dummy value */
+    uint32_t flags;              /**< \brief TA command (vertex flags) */
+    float   ax;                  /**< \brief First X coordinate */
+    float   ay;                  /**< \brief First Y coordinate */
+    float   az;                  /**< \brief First Z coordinate */
+    float   bx;                  /**< \brief Second X coordinate */
+    float   by;                  /**< \brief Second Y coordinate */
+    float   bz;                  /**< \brief Second Z coordinate */
+    float   cx;                  /**< \brief Third X coordinate */
+    float   cy;                  /**< \brief Third Y coordinate */
+    float   cz;                  /**< \brief Third Z coordinate */
+    uint32_t d1;                 /**< \brief Dummy value */
+    uint32_t d2;                 /**< \brief Dummy value */
+    uint32_t d3;                 /**< \brief Dummy value */
+    uint32_t d4;                 /**< \brief Dummy value */
+    uint32_t d5;                 /**< \brief Dummy value */
+    uint32_t d6;                 /**< \brief Dummy value */
 } pvr_modifier_vol_t;
 
 /** \brief  Pack four floating point color values into a 32-bit integer form.
@@ -834,10 +834,10 @@ typedef struct {
     \param  v               Second coordinate to pack
     \return                 The packed coordinates
 */
-static inline uint32 PVR_PACK_16BIT_UV(float u, float v) {
+static inline uint32_t PVR_PACK_16BIT_UV(float u, float v) {
     union {
         float f;
-        uint32 i;
+        uint32_t i;
     } u2, v2;
 
     u2.f = u;
@@ -1030,7 +1030,7 @@ Striplength set to 2 */
 #define PVR_COLOR_CLAMP_MAX     0x00bc  /**< \brief RGB Color clamp max */
 #define PVR_COLOR_CLAMP_MIN     0x00c0  /**< \brief RGB Color clamp min */
 #define PVR_GUN_POS             0x00c4  /**< \brief Light gun position */
-#define PVR_UNK_00C8            0x00c8  /**< \brief ?? -- write same as border H in 00d4 << 16 */
+#define PVR_HPOS_IRQ            0x00c8  /**< \brief Horizontal position IRQ */
 #define PVR_VPOS_IRQ            0x00cc  /**< \brief Vertical position IRQ */
 #define PVR_IL_CFG              0x00d0  /**< \brief Interlacing config */
 #define PVR_BORDER_X            0x00d4  /**< \brief Window border X position */
@@ -1059,7 +1059,8 @@ Striplength set to 2 */
 #define PVR_OPB_CFG             0x0140  /**< \brief Active lists / list size */
 #define PVR_TA_INIT             0x0144  /**< \brief Initialize vertex reg. params */
 #define PVR_YUV_ADDR            0x0148  /**< \brief YUV conversion destination */
-#define PVR_YUV_CFG_1           0x014c  /**< \brief YUV configuration */
+#define PVR_YUV_CFG             0x014c  /**< \brief YUV configuration */
+#define PVR_YUV_STAT            0x0150  /**< \brief The number of YUV macroblocks converted */
 
 #define PVR_UNK_0160            0x0160  /**< \brief ?? */
 #define PVR_TA_OPB_INIT         0x0164  /**< \brief Object pointer buffer position init */
@@ -1071,6 +1072,8 @@ Striplength set to 2 */
 
 /* Useful memory locations */
 #define PVR_TA_INPUT        0x10000000  /**< \brief TA command input */
+#define PVR_TA_YUV_CONV     0x10800000  /**< \brief YUV converter */
+#define PVR_TA_TEX_MEM      0x11000000  /**< \brief Texture memory */
 #define PVR_RAM_BASE        0xa5000000  /**< \brief PVR RAM (raw) */
 #define PVR_RAM_INT_BASE    0xa4000000  /**< \brief PVR RAM (interleaved) */
 
@@ -1089,7 +1092,7 @@ Striplength set to 2 */
 
     @{
 */
-#define PVR_RESET_ALL       0xffffffff  /**< \brief Reset the wole PVR */
+#define PVR_RESET_ALL       0xffffffff  /**< \brief Reset the whole PVR */
 #define PVR_RESET_NONE      0x00000000  /**< \brief Cancel reset state */
 #define PVR_RESET_TA        0x00000001  /**< \brief Reset only the TA */
 #define PVR_RESET_ISPTSP    0x00000002  /**< \brief Reset only the ISP/TSP */
@@ -1157,6 +1160,17 @@ typedef struct {
         when rendering translucent polygons, meaning you must pre-sort them
         yourself if you want them to appear in the right order. */
     int     autosort_disabled;
+
+
+    /** \brief  OPB Overflow Count.
+
+        Preallocates this many extra OPBs (sets of tile bins), allowing the PVR
+        to use the extra space when there's too much geometry in the first OPB.
+    
+        Increasing this value can eliminate artifacts where pieces of geometry
+        flicker in and out of existence along the tile boundaries. */
+
+    int     opb_overflow_count;
 
 } pvr_init_params_t;
 
@@ -1258,16 +1272,16 @@ int pvr_get_vbl_count(void);
     \headerfile dc/pvr.h
 */
 typedef struct pvr_stats {
-    uint32  enabled_list_mask;  /**< \brief Which lists are enabled? */
-    uint32  vbl_count;          /**< \brief VBlank count */
-    int     frame_last_time;    /**< \brief Ready-to-Ready length for the last frame in milliseconds */
-    float   frame_rate;         /**< \brief Current frame rate (per second) */
-    int     reg_last_time;      /**< \brief Registration time for the last frame in milliseconds */
-    int     rnd_last_time;      /**< \brief Rendering time for the last frame in milliseconds */
-    int     vtx_buffer_used;    /**< \brief Number of bytes used in the vertex buffer for the last frame */
-    int     vtx_buffer_used_max;/**< \brief Number of bytes used in the vertex buffer for the largest frame */
-    int     buf_last_time;      /**< \brief DMA buffer file time for the last frame in milliseconds */
-    uint32  frame_count;        /**< \brief Total number of rendered/viewed frames */
+    uint32_t enabled_list_mask;  /**< \brief Which lists are enabled? */
+    uint32_t vbl_count;          /**< \brief VBlank count */
+    int     frame_last_time;     /**< \brief Ready-to-Ready length for the last frame in milliseconds */
+    float   frame_rate;          /**< \brief Current frame rate (per second) */
+    int     reg_last_time;       /**< \brief Registration time for the last frame in milliseconds */
+    int     rnd_last_time;       /**< \brief Rendering time for the last frame in milliseconds */
+    int     vtx_buffer_used;     /**< \brief Number of bytes used in the vertex buffer for the last frame */
+    int     vtx_buffer_used_max; /**< \brief Number of bytes used in the vertex buffer for the largest frame */
+    int     buf_last_time;       /**< \brief DMA buffer file time for the last frame in milliseconds */
+    uint32_t frame_count;        /**< \brief Total number of rendered/viewed frames */
     /* ... more later as it's implemented ... */
 } pvr_stats_t;
 
@@ -1329,7 +1343,7 @@ void pvr_set_pal_format(int fmt);
     \param  idx             The index to set to (0-1023)
     \param  value           The color value to set in that palette entry
 */
-static inline void pvr_set_pal_entry(uint32 idx, uint32 value) {
+static inline void pvr_set_pal_entry(uint32_t idx, uint32_t value) {
     PVR_SET(PVR_PALETTE_TABLE_BASE + 4 * idx, value);
 }
 
@@ -1442,7 +1456,7 @@ void pvr_mem_free(pvr_ptr_t chunk);
 /** \brief  Return the number of bytes available still in the PVR RAM pool.
     \return                 The number of bytes available
 */
-uint32 pvr_mem_available(void);
+uint32_t pvr_mem_available(void);
 
 /** \brief  Reset the PVR RAM pool.
 
@@ -1526,7 +1540,7 @@ int pvr_vertex_dma_enabled(void);
                             using the list).
     \return                 The old buffer location (if any)
 */
-void * pvr_set_vertbuf(pvr_list_t list, void * buffer, int len);
+void *pvr_set_vertbuf(pvr_list_t list, void *buffer, int len);
 
 /** \brief  Retrieve a pointer to the current output location in the DMA buffer
             for the requested list.
@@ -1538,7 +1552,7 @@ void * pvr_set_vertbuf(pvr_list_t list, void * buffer, int len);
     \param  list            The primitive list to get the buffer for.
     \return                 The tail of that list's buffer.
 */
-void * pvr_vertbuf_tail(pvr_list_t list);
+void *pvr_vertbuf_tail(pvr_list_t list);
 
 /** \brief  Notify the PVR system that data have been written into the output
             buffer for the given list.
@@ -1549,7 +1563,7 @@ void * pvr_vertbuf_tail(pvr_list_t list);
     \param  list            The primitive list that was modified.
     \param  amt             Number of bytes written. Must be a multiple of 32.
 */
-void pvr_vertbuf_written(pvr_list_t list, uint32 amt);
+void pvr_vertbuf_written(pvr_list_t list, uint32_t amt);
 
 /** \brief  Set the translucent polygon sort mode for the next frame.
 
@@ -1588,7 +1602,7 @@ void pvr_scene_begin(void);
     \param  rx              Width of the texture buffer (in pixels).
     \param  ry              Height of the texture buffer (in pixels).
 */
-void pvr_scene_begin_txr(pvr_ptr_t txr, uint32 *rx, uint32 *ry);
+void pvr_scene_begin_txr(pvr_ptr_t txr, uint32_t *rx, uint32_t *ry);
 
 /** \brief  Begin collecting data for the given list type.
 
@@ -1637,10 +1651,10 @@ int pvr_list_finish(void);
     \retval 0               On success.
     \retval -1              On error.
 */
-int pvr_prim(void * data, int size);
+int pvr_prim(void *data, int size);
 
 /** \brief  Direct Rendering state variable type. */
-typedef uint32 pvr_dr_state_t;
+typedef uint32_t pvr_dr_state_t;
 
 /** \brief  Initialize a state variable for Direct Rendering.
 
@@ -1685,7 +1699,7 @@ typedef uint32 pvr_dr_state_t;
     \retval 0               On success.
     \retval -1              On error.
 */
-int pvr_list_prim(pvr_list_t list, void * data, int size);
+int pvr_list_prim(pvr_list_t list, void *data, int size);
 
 /** \brief  Flush the buffered data of the given list type to the TA.
 
@@ -1834,8 +1848,8 @@ void pvr_sprite_cxt_txr(pvr_sprite_cxt_t *dst, pvr_list_t list,
     \see    pvr_mod_modes
     \see    pvr_cull_modes
 */
-void pvr_mod_compile(pvr_mod_hdr_t *dst, pvr_list_t list, uint32 mode,
-                     uint32 cull);
+void pvr_mod_compile(pvr_mod_hdr_t *dst, pvr_list_t list, uint32_t mode,
+                     uint32_t cull);
 
 /** \brief  Compile a polygon context into a polygon header that is affected by
             modifier volumes.
@@ -1905,7 +1919,7 @@ void pvr_poly_cxt_txr_mod(pvr_poly_cxt_t *dst, pvr_list_t list,
     \param  count           The size of the texture in bytes (must be a multiple
                             of 32).
 */
-void pvr_txr_load(void * src, pvr_ptr_t dst, uint32 count);
+void pvr_txr_load(void *src, pvr_ptr_t dst, uint32_t count);
 
 /** \defgroup pvr_txrload_constants     Texture loading constants
 
@@ -1949,7 +1963,7 @@ void pvr_txr_load(void * src, pvr_ptr_t dst, uint32 count);
 
     \see    pvr_txrload_constants
 */
-void pvr_txr_load_ex(void * src, pvr_ptr_t dst, uint32 w, uint32 h, uint32 flags);
+void pvr_txr_load_ex(void *src, pvr_ptr_t dst, uint32_t w, uint32_t h, uint32_t flags);
 
 /** \brief  Load a KOS Platform Independent Image (subject to constraint
             checking).
@@ -1979,7 +1993,7 @@ void pvr_txr_load_ex(void * src, pvr_ptr_t dst, uint32 w, uint32 h, uint32 flags
                             from this function if it twiddles the texture while
                             loading.
 */
-void pvr_txr_load_kimg(kos_img_t *img, pvr_ptr_t dst, uint32 flags);
+void pvr_txr_load_kimg(kos_img_t *img, pvr_ptr_t dst, uint32_t flags);
 
 
 /* PVR DMA ***********************************************************/
@@ -1993,7 +2007,7 @@ void pvr_txr_load_kimg(kos_img_t *img, pvr_ptr_t dst, uint32 flags);
     \param  data            User data passed in to the pvr_dma_transfer()
                             function.
 */
-typedef void (*pvr_dma_callback_t)(ptr_t data);
+typedef void (*pvr_dma_callback_t)(void *data);
 
 /** \brief  Perform a DMA transfer to the PVR.
 
@@ -2023,8 +2037,8 @@ typedef void (*pvr_dma_callback_t)(ptr_t data);
 
     \see    pvr_dma_modes
 */
-int pvr_dma_transfer(void * src, uint32 dest, uint32 count, int type,
-                     int block, pvr_dma_callback_t callback, ptr_t cbdata);
+int pvr_dma_transfer(void *src, uintptr_t dest, size_t count, int type,
+                     int block, pvr_dma_callback_t callback, void *cbdata);
 
 /** \defgroup pvr_dma_modes         Transfer modes with PVR DMA
     @{
@@ -2032,6 +2046,7 @@ int pvr_dma_transfer(void * src, uint32 dest, uint32 count, int type,
 #define PVR_DMA_VRAM64  0   /**< \brief Transfer to VRAM in interleaved mode */
 #define PVR_DMA_VRAM32  1   /**< \brief Transfer to VRAM in linear mode */
 #define PVR_DMA_TA      2   /**< \brief Transfer to the tile accelerator */
+#define PVR_DMA_YUV     3   /**< \brief Transfer to the YUV converter */
 /** @} */
 
 /** \brief  Load a texture using PVR DMA.
@@ -2055,8 +2070,8 @@ int pvr_dma_transfer(void * src, uint32 dest, uint32 count, int type,
     \em     EFAULT - dest is not 32-byte aligned \n
     \em     EIO - I/O error
 */
-int pvr_txr_load_dma(void * src, pvr_ptr_t dest, uint32 count, int block,
-                     pvr_dma_callback_t callback, ptr_t cbdata);
+int pvr_txr_load_dma(void *src, pvr_ptr_t dest, size_t count, int block,
+                     pvr_dma_callback_t callback, void *cbdata);
 
 /** \brief  Load vertex data to the TA using PVR DMA.
 
@@ -2078,8 +2093,31 @@ int pvr_txr_load_dma(void * src, pvr_ptr_t dest, uint32 count, int block,
     \em     EFAULT - dest is not 32-byte aligned \n
     \em     EIO - I/O error
  */
-int pvr_dma_load_ta(void * src, uint32 count, int block,
-                    pvr_dma_callback_t callback, ptr_t cbdata);
+int pvr_dma_load_ta(void *src, size_t count, int block,
+                    pvr_dma_callback_t callback, void *cbdata);
+
+/** \brief  Load yuv data to the YUV converter using PVR DMA.
+
+    This is essentially a convenience wrapper for pvr_dma_transfer(), so all
+    notes that apply to it also apply here.
+
+    \param  src             Where to copy from. Must be 32-byte aligned.
+    \param  count           The number of bytes to copy. Must be a multiple of
+                            32.
+    \param  block           Non-zero if you want the function to block until the
+                            DMA completes.
+    \param  callback        A function to call upon completion of the DMA.
+    \param  cbdata          Data to pass to the callback function.
+    \retval 0               On success.
+    \retval -1              On failure. Sets errno as appropriate.
+
+    \par    Error Conditions:
+    \em     EINPROGRESS - DMA already in progress \n
+    \em     EFAULT - dest is not 32-byte aligned \n
+    \em     EIO - I/O error
+*/
+int pvr_dma_yuv_conv(void *src, size_t count, int block,
+                     pvr_dma_callback_t callback, void *cbdata);
 
 /** \brief  Is PVR DMA is inactive?
     \return                 Non-zero if there is no PVR DMA active, thus a DMA

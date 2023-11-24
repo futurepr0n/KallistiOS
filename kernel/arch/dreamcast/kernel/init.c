@@ -8,8 +8,10 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <string.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <kos/dbgio.h>
+#include <kos/init.h>
 #include <arch/arch.h>
 #include <arch/irq.h>
 #include <arch/memory.h>
@@ -59,17 +61,66 @@ dbgio_handler_t * dbgio_handlers[] = {
 };
 int dbgio_handler_cnt = sizeof(dbgio_handlers) / sizeof(dbgio_handler_t *);
 
-/* Auto-init stuff: override with a non-weak symbol if you don't want all of
-   this to be linked into your code (and do the same with the
-   arch_auto_shutdown function too). */
-int  __attribute__((weak)) arch_auto_init(void) {
-#ifndef _arch_sub_naomi
+void arch_init_net(void) {
     union {
         uint32 ipl;
         uint8 ipb[4];
-    } ip;
-#endif
+    } ip = { 0 };
 
+    if(!(__kos_init_flags & INIT_NO_DCLOAD) && dcload_type == DCLOAD_TYPE_IP) {
+        /* Grab the IP address from dcload before we disable dbgio... */
+        ip.ipl = _fs_dclsocket_get_ip();
+        dbglog(DBG_INFO, "dc-load says our IP is %d.%d.%d.%d\n", ip.ipb[3],
+               ip.ipb[2], ip.ipb[1], ip.ipb[0]);
+        dbgio_disable();
+    }
+
+    net_init(ip.ipl);     /* Enable networking (and drivers) */
+
+    if(!(__kos_init_flags & INIT_NO_DCLOAD) && dcload_type == DCLOAD_TYPE_IP) {
+        fs_dclsocket_init_console();
+
+        if(!fs_dclsocket_init()) {
+            dbgio_dev_select("fs_dclsocket");
+            dbgio_enable();
+            dbglog(DBG_INFO, "fs_dclsocket console support enabled\n");
+        }
+    }
+}
+
+void vmu_fs_init(void) {
+    fs_vmu_init();
+    vmufs_init();
+}
+
+void vmu_fs_shutdown(void) {
+    fs_vmu_shutdown();
+    vmufs_shutdown();
+}
+
+/* Mount the built-in romdisk to /rd. */
+void fs_romdisk_mount_builtin(void) {
+    fs_romdisk_mount("/rd", __kos_romdisk, 0);
+}
+
+void fs_romdisk_mount_builtin_legacy(void) {
+    fs_romdisk_mount_builtin();
+}
+
+KOS_INIT_FLAG_WEAK(arch_init_net, false);
+KOS_INIT_FLAG_WEAK(net_shutdown, false);
+KOS_INIT_FLAG_WEAK(maple_wait_scan, true);
+KOS_INIT_FLAG_WEAK(fs_romdisk_init, true);
+KOS_INIT_FLAG_WEAK(fs_romdisk_shutdown, true);
+KOS_INIT_FLAG_WEAK(fs_romdisk_mount_builtin, false);
+KOS_INIT_FLAG_WEAK(fs_romdisk_mount_builtin_legacy, false);
+KOS_INIT_FLAG_WEAK(vmu_fs_init, true);
+KOS_INIT_FLAG_WEAK(vmu_fs_shutdown, true);
+
+/* Auto-init stuff: override with a non-weak symbol if you don't want all of
+   this to be linked into your code (and do the same with the
+   arch_auto_shutdown function too). */
+int  __weak arch_auto_init(void) {
     /* Initialize memory management */
     mm_init();
 
@@ -106,11 +157,6 @@ int  __attribute__((weak)) arch_auto_init(void) {
     timer_ms_enable();
     rtc_init();
 
-    /* Threads */
-    if(!(__kos_init_flags & INIT_THD_PREEMPT))
-        dbglog(DBG_WARNING, "Cooperative threading mode is deprecated. KOS is \
-        always in pre-emptive threading mode. \n");
-
     thd_init();
 
     nmmgr_init();
@@ -118,7 +164,7 @@ int  __attribute__((weak)) arch_auto_init(void) {
     fs_init();          /* VFS */
     fs_pty_init();          /* Pty */
     fs_ramdisk_init();      /* Ramdisk */
-    fs_romdisk_init();      /* Romdisk */
+    KOS_INIT_FLAG_CALL(fs_romdisk_init);    /* Romdisk */
 
 /* The arc4random_buf() function used for random & urandom is only
    available in newlib starting with version 2.4.0 */
@@ -130,9 +176,8 @@ int  __attribute__((weak)) arch_auto_init(void) {
 
     hardware_periph_init();     /* DC peripheral init */
 
-    if(__kos_romdisk != NULL) {
-        fs_romdisk_mount("/rd", __kos_romdisk, 0);
-    }
+    if(!KOS_INIT_FLAG_CALL(fs_romdisk_mount_builtin))
+        KOS_INIT_FLAG_CALL(fs_romdisk_mount_builtin_legacy);
 
 #ifndef _arch_sub_naomi
     if(!(__kos_init_flags & INIT_NO_DCLOAD) && *DCLOADMAGICADDR == DCLOADMAGICVALUE) {
@@ -142,8 +187,8 @@ int  __attribute__((weak)) arch_auto_init(void) {
 
     fs_iso9660_init();
 #endif
-    vmufs_init();
-    fs_vmu_init();
+
+    KOS_INIT_FLAG_CALL(vmu_fs_init);
 
     /* Initialize library handling */
     library_init();
@@ -151,44 +196,20 @@ int  __attribute__((weak)) arch_auto_init(void) {
     /* Now comes the optional stuff */
     if(__kos_init_flags & INIT_IRQ) {
         irq_enable();       /* Turn on IRQs */
-        maple_wait_scan();  /* Wait for the maple scan to complete */
+        KOS_INIT_FLAG_CALL(maple_wait_scan);  /* Wait for the maple scan to complete */
     }
 
 #ifndef _arch_sub_naomi
-    if(__kos_init_flags & INIT_NET) {
-        ip.ipl = 0;
-
-        /* Check if the dcload-ip console is up, and if so, disable it,
-           otherwise we'll crash when we attempt to bring up the BBA */
-        if(!(__kos_init_flags & INIT_NO_DCLOAD) && dcload_type == DCLOAD_TYPE_IP) {
-            /* Grab the IP address from dcload before we disable dbgio... */
-            ip.ipl = _fs_dclsocket_get_ip();
-            dbglog(DBG_INFO, "dc-load says our IP is %d.%d.%d.%d\n", ip.ipb[3],
-                   ip.ipb[2], ip.ipb[1], ip.ipb[0]);
-            dbgio_disable();
-        }
-
-        net_init(ip.ipl);     /* Enable networking (and drivers) */
-
-        if(!(__kos_init_flags & INIT_NO_DCLOAD) && dcload_type == DCLOAD_TYPE_IP) {
-            fs_dclsocket_init_console();
-
-            if(!fs_dclsocket_init()) {
-                dbgio_dev_select("fs_dclsocket");
-                dbgio_enable();
-                dbglog(DBG_INFO, "fs_dclsocket console support enabled\n");
-            }
-        }
-    }
+    KOS_INIT_FLAG_CALL(arch_init_net);
 #endif
 
     return 0;
 }
 
-void  __attribute__((weak)) arch_auto_shutdown(void) {
+void  __weak arch_auto_shutdown(void) {
 #ifndef _arch_sub_naomi
     fs_dclsocket_shutdown();
-    net_shutdown();
+    KOS_INIT_FLAG_CALL(net_shutdown);
 #endif
 
     irq_disable();
@@ -200,8 +221,7 @@ void  __attribute__((weak)) arch_auto_shutdown(void) {
 #ifndef _arch_sub_naomi
     fs_dcload_shutdown();
 #endif
-    fs_vmu_shutdown();
-    vmufs_shutdown();
+    KOS_INIT_FLAG_CALL(vmu_fs_shutdown);
 #ifndef _arch_sub_naomi
     fs_iso9660_shutdown();
 #endif
@@ -209,7 +229,7 @@ void  __attribute__((weak)) arch_auto_shutdown(void) {
     fs_dev_shutdown();
 #endif
     fs_ramdisk_shutdown();
-    fs_romdisk_shutdown();
+    KOS_INIT_FLAG_CALL(fs_romdisk_shutdown);
     fs_pty_shutdown();
     fs_shutdown();
     thd_shutdown();

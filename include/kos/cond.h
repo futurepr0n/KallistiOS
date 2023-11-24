@@ -1,12 +1,13 @@
 /* KallistiOS ##version##
 
    include/kos/cond.h
-   Copyright (C)2001,2003 Megan Potter
+   Copyright (C) 2001, 2003 Megan Potter
 
 */
 
 /** \file   kos/cond.h
     \brief  Condition variables.
+    \ingroup kthreads
 
     This file contains the definition of a Condition Variable. Condition
     Variables (or condvars for short) are used with a mutex to act as a lock and
@@ -59,17 +60,18 @@ __BEGIN_DECLS
     \headerfile kos/cond.h
 */
 typedef struct condvar {
-    int initialized;
+    int dummy;
     int dynamic;
 } condvar_t;
 
 /** \brief  Initializer for a transient condvar. */
-#define COND_INITIALIZER    { 1, 0 }
+#define COND_INITIALIZER    { 0, 0 }
 
 /** \brief  Allocate a new condition variable.
 
     This function allocates and initializes a new condition variable for use.
 
+    \deprecated
     This function is formally deprecated and should not be used in new code.
     Instead you should use either the static initializer or the cond_init()
     function.

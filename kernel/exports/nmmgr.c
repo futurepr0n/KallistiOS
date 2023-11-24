@@ -15,10 +15,12 @@ interface at the front of their struct.
 
 */
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <malloc.h>
 #include <string.h>
 #include <strings.h>
+#include <kos/init_base.h>
 #include <kos/nmmgr.h>
 #include <kos/mutex.h>
 #include <kos/exports.h>
@@ -88,17 +90,15 @@ int nmmgr_handler_remove(nmmgr_handler_t *hnd) {
     return rv;
 }
 
-/* Initialize structures */
-int nmmgr_init(void) {
-    int rv = 0;
+KOS_INIT_FLAG_WEAK(export_init, false);
 
+/* Initialize structures */
+void nmmgr_init(void) {
     /* Start with no handlers */
     LIST_INIT(&nmmgr_handlers);
 
     /* Initialize our internal exports */
-    export_init();
-
-    return rv;
+    KOS_INIT_FLAG_CALL(export_init);
 }
 
 void nmmgr_shutdown(void) {

@@ -423,38 +423,13 @@ static void bba_hw_shutdown(void) {
     asic_evt_set_handler(ASIC_EVT_EXP_PCI, NULL);
 }
 
-/*
-   G2 bus cycles must not be interrupted by IRQs or G2 DMA.
-   The following paired macros will take the necessary precautions.
- */
-
-#define DMAC_CHCR1 *((vuint32 *)0xffa0001c)
-#define DMAC_CHCR3 *((vuint32 *)0xffa0003c)
-
-#define G2_LOCK(OLD1, OLD2) \
-    do { \
-        OLD1 = irq_disable(); \
-        /* suspend any G2 DMA here... */ \
-        OLD2 = DMAC_CHCR3; \
-        DMAC_CHCR3 = OLD2 & ~1; \
-        while((*(vuint32 *)0xa05f688c) & 0x20) \
-            ; \
-    } while(0)
-
-#define G2_UNLOCK(OLD1, OLD2) \
-    do { \
-        /* resume any G2 DMA here... */ \
-        DMAC_CHCR3 = OLD2; \
-        irq_restore(OLD1); \
-    } while(0)
-
 static void g2_read_block_8_fast(uint8 *dst, uint8 *src, int len) {
     if(len <= 0)
         return;
 
-    uint32 old1, old2;
+    g2_ctx_t ctx;
 
-    G2_LOCK(old1, old2);
+    ctx = g2_lock();
 
     uint32 * d = (uint32 *) dst;
     uint32 * s = (uint32 *) src;
@@ -483,7 +458,7 @@ static void g2_read_block_8_fast(uint8 *dst, uint8 *src, int len) {
         while(--len);
     }
 
-    G2_UNLOCK(old1, old2);
+    g2_unlock(ctx);
 }
 
 
@@ -529,14 +504,14 @@ static void rx_finish_enq(int room) {
     }
 }
 
-static void bba_dma_cb(ptr_t p) {
+static void bba_dma_cb(void *p) {
     (void)p;
 
     if(next_len) {
         g2_dma_transfer(next_dst, next_src, next_len, 0,
                         bba_dma_cb, 0,  /* callback */
                         1,  /* dir = 1, we're *reading* from the g2 bus */
-                        BBA_DMA_MODE, BBA_DMA_G2CHN, BBA_DMA_SHCHN);
+                        0, G2_DMA_CHAN_BBA, 0);
         next_len = 0;
     }
     else {
@@ -580,7 +555,7 @@ static int bba_copy_dma(uint8 * dst, uint32 s, int len) {
             g2_dma_transfer(dst, src, len, 0,
                             bba_dma_cb, 0,  /* callback */
                             1,  /* dir = 1, we're *reading* from the g2 bus */
-                            BBA_DMA_MODE, BBA_DMA_G2CHN, BBA_DMA_SHCHN);
+                            0, G2_DMA_CHAN_BBA, 0);
         }
         else {
             next_dst = dst;
@@ -1207,8 +1182,10 @@ int bba_init(void) {
 /* Shutdown */
 int bba_shutdown(void) {
     /* Shutdown hardware */
-    bba_if.if_stop(&bba_if);
-    bba_if.if_shutdown(&bba_if);
+    if(bba_if.flags & NETIF_RUNNING)
+        bba_if.if_stop(&bba_if);
+    if(bba_if.flags & NETIF_INITIALIZED)
+        bba_if.if_shutdown(&bba_if);
 
 #ifdef TX_SEMA
     sem_destroy(&tx_sema);

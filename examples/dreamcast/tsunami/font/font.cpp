@@ -13,15 +13,15 @@
 #include <tsu/texture.h>
 #include <plx/sprite.h>
 
+#include <memory>
+
 /*
   Shows off some very basic usage of the font and texture objects
   with Parallax as the vertex system rather than the Tsunami scene
   graphs.
  */
 
-extern uint8 romdisk[];
 KOS_INIT_FLAGS(INIT_DEFAULT | INIT_MALLOCSTATS);
-KOS_INIT_ROMDISK(romdisk);
 
 int main(int argc, char **argv) {
     int done = 0;
@@ -31,10 +31,10 @@ int main(int argc, char **argv) {
 
     pvr_init_defaults();
 
-    RefPtr<Font> fnt = new Font("/rd/axaxax.txf");
+    auto fnt = std::make_shared<Font>("/rd/axaxax.txf");
     fnt->setSize(24.0f);
 
-    RefPtr<Texture> txr = new Texture("/rd/logo.png", true);
+    auto txr = std::make_shared<Texture>("/rd/logo.png", true);
 
     pvr_set_bg_color(0.2f, 0.0f, 0.4f);
 

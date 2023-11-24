@@ -24,7 +24,7 @@ if(NOT DEFINED KOS_BASE)
         message(FATAL_ERROR "Variable KOS_BASE not set and was not found in the environment")
     endif()
     set(KOS_BASE $ENV{KOS_BASE})
-    message("KOS_BASE: ${KOS_BASE}")
+    message(VERBOSE "KOS_BASE: ${KOS_BASE}")
 endif()
 
 if(NOT DEFINED KOS_CC_BASE)
@@ -32,7 +32,7 @@ if(NOT DEFINED KOS_CC_BASE)
         message(FATAL_ERROR "Variable KOS_CC_BASE not set and was not found in the environment")
     endif()
     set(KOS_CC_BASE $ENV{KOS_CC_BASE})
-    message("KOS_CC_BASE: ${KOS_CC_BASE}")
+    message(VERBOSE "KOS_CC_BASE: ${KOS_CC_BASE}")
 endif()
 
 if(NOT DEFINED KOS_SUBARCH)
@@ -40,7 +40,7 @@ if(NOT DEFINED KOS_SUBARCH)
         message(FATAL_ERROR "Variable KOS_SUBARCH not set and was not found in the environment")
     endif()
     set(KOS_SUBARCH $ENV{KOS_SUBARCH})
-    message("KOS_SUBARCH: ${KOS_SUBARCH}")
+    message(VERBOSE "KOS_SUBARCH: ${KOS_SUBARCH}")
 endif()
 
 if(NOT DEFINED KOS_PORTS)
@@ -48,7 +48,7 @@ if(NOT DEFINED KOS_PORTS)
         message(FATAL_ERROR "Variable KOS_PORTS not set and was not found in the environment")
     endif()
     set(KOS_PORTS $ENV{KOS_PORTS})
-    message("KOS_PORTS: ${KOS_PORTS}")
+    message(VERBOSE "KOS_PORTS: ${KOS_PORTS}")
 endif()
 
 ##### Configure CMake System #####
@@ -74,7 +74,7 @@ ADD_DEFINITIONS(
 )
 
 if(${KOS_SUBARCH} MATCHES naomi)
-    ADD_DEFINITONS(
+    ADD_DEFINITIONS(
         -D__NAOMI__
         -D_arch_sub_naomi
     )
@@ -83,7 +83,7 @@ else()
 endif()
 
 ##### Configure Build Flags #####
-add_compile_options(-ml -m4-single-only -ffunction-sections -fdata-sections)
+add_compile_options(-ml -m4-single-only -ffunction-sections -fdata-sections -matomic-model=soft-imask -ftls-model=local-exec)
 
 set(ENABLE_DEBUG_FLAGS   $<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>)
 set(ENABLE_RELEASE_FLAGS $<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>)
