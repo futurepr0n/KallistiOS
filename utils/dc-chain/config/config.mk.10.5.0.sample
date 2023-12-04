@@ -9,7 +9,7 @@
 sh_binutils_ver=2.41
 sh_gcc_ver=10.5.0
 newlib_ver=4.3.0.20230120
-gdb_ver=13.2
+gdb_ver=14.1
 
 # Tarball extensions to download for SH
 sh_binutils_download_type=xz
@@ -136,7 +136,7 @@ thread_model=kos
 # Define this to build SH4 Newlib with additional support for the C99 format
 # specifiers, used by printf and friends. These include support for size_t,
 # ptrdiff_t, intmax_t, and sized integral types.
-#newlib_c99_formats=1
+newlib_c99_formats=1
 
 # Optimize Newlib for Space (1|0)
 # Define this to enable optimizing for space when building Newlib. This will
