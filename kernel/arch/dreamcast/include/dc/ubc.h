@@ -40,18 +40,26 @@ __BEGIN_DECLS
     
     @{
 */
-#define BARA    (*((vuint32*)0xFF200000))   /**< \brief Break Address A */
-#define BASRA   (*((vuint8*)0xFF000014))    /**< \brief Break ASID */
-#define BAMRA   (*((vuint8*)0xFF200004))    /**< \brief Break Address Mask */
-#define BBRA    (*((vuint16*)0xFF200008))   /**< \brief Break Bus Cycle */
-#define BARB    (*((vuint32*)0xFF20000C))   /**< \brief Break Address */
-#define BASRB   (*((vuint8*)0xFF000018))    /**< \brief Break ASID */
-#define BAMRB   (*((vuint8*)0xFF200010))    /**< \brief Break Address Mask */
-#define BBRB    (*((vuint16*)0xFF200014))   /**< \brief Break Bus Cycle */
-#define BDRB    (*((vuint32*)0xFF200018))   /**< \brief Break Data */
-#define BDMRB   (*((vuint16*)0xFF20001C))   /**< \brief Break Data Mask */
-#define BRCR    (*((vuint16*)0xFF200020))   /**< \brief Break Control */
+#define BARA    (*((vuint32 *)0xff200000))   /**< \brief Break Address A */
+#define BASRA   (*((vuint8  *)0xff000014))   /**< \brief Break ASID */
+#define BAMRA   (*((vuint8  *)0xff200004))   /**< \brief Break Address Mask */
+#define BBRA    (*((vuint16 *)0xff200008))   /**< \brief Break Bus Cycle */
+#define BARB    (*((vuint32 *)0xff20000c))   /**< \brief Break Address */
+#define BASRB   (*((vuint8  *)0xff000018))   /**< \brief Break ASID */
+#define BAMRB   (*((vuint8  *)0xff200010))   /**< \brief Break Address Mask */
+#define BBRB    (*((vuint16 *)0xff200014))   /**< \brief Break Bus Cycle */
+#define BDRB    (*((vuint32 *)0xff200018))   /**< \brief Break Data */
+#define BDMRB   (*((vuint16 *)0xff20001c))   /**< \brief Break Data Mask */
+#define BRCR    (*((vuint16 *)0xff200020))   /**< \brief Break Control */
 /** @} */
+
+
+#define BASMA  (1 << 2)  /* Specifies whether all bits of the channel A break ASID (BASA7–BASA0) are to be masked. */
+#define BAMA   (0xb)     /* */
+
+#define IDA     (3 << 4)
+#define RWA     (3 << 2)
+#define SZA     (0x43)
 
 /** \brief  Pause after setting UBC parameters. 
  
