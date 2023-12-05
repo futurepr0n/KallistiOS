@@ -28,8 +28,32 @@ __BEGIN_DECLS
 
 /** \defgroup ubc   User Break Controller (UBC)
 
+    The SH4's User Break Controller (UBC) is a CPU peripheral which facilitates
+    low-level software debugging. It provides two different channels which can
+    be configured to monitor for certain memory or instruction conditions
+    before generating a user-break interrupt. It provides the foundation for
+    creating software-based debuggers and is the backing driver for the GDB
+    debug stub.
+
+    The following break comparison conditions are supported:
+        - Address with optional ASID and 10, 12, 16, and 20-bit mask:
+          supporting breaking on ranges of addresses and MMU operation.
+        - Bus Cycle: supporting instruction or operand (data) breakpoints
+        - Read/Write: supporting R, W, or RW access conditions.
+        - Operand size: byte, word, longword, quadword
+        - Data: 32-bit value with 32-bit mask for breaking on specific values
+          or ranges of values (ubc_channel_b only).
+        - Pre or Post-Instruction breaking
+
     \note 
-    This API has been inlined to avoid complications with using it.
+    This API has been inlined to avoid complications with using it, but as
+    such, much of what would be "private" implementation details such as
+    register definitions are not encapsulated. Typically you want to use the
+    high-level API and not the direct register access.
+
+    \warning
+    This Driver is used internally by the gdb_stub, so care must be taken to
+    not utilize the UBC during a GDB debugging session!
 */
 
 /** \defgroup ubc_regs  Registers
