@@ -20,7 +20,7 @@
 vid_mode_t vid_builtin[DM_MODE_COUNT] = {
     /* NULL mode.. */
     /* DM_INVALID = 0 */
-    { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, { 0, 0, 0, 0 } },
+    { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, { 0 } },
 
     /* 320x240 VGA 60Hz */
     /* DM_320x240_VGA */
@@ -36,7 +36,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         141, 843,
         24, 263,
         0, 1,
-        { 0, 0, 0, 0 }
+        { 0 }
     },
 
     /* 320x240 NTSC 60Hz */
@@ -53,7 +53,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         141, 843,
         24, 263,
         0, 1,
-        { 0, 0, 0, 0 }
+        { 0 }
     },
 
     /* 640x480 VGA 60Hz */
@@ -70,7 +70,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         0x7E, 0x345,
         0x24, 0x204,
         0, 1,
-        { 0, 0, 0, 0 }
+        { 0 }
     },
 
     /* 640x480 NTSC 60Hz IL */
@@ -87,7 +87,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         0x7E, 0x345,
         0x24, 0x204,
         0, 1,
-        { 0, 0, 0, 0 }
+        { 0 }
     },
 
     /* 800x608 NTSC 60Hz (VGA) [BROKEN!] */
@@ -104,7 +104,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         141, 843,
         24, 264,
         0, 1,
-        { 0, 0, 0, 0 }
+        { 0 }
     },
 
     /* 640x480 PAL 50Hz IL */
@@ -121,7 +121,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         0x8D, 0x34B,
         0x2C, 0x26C,
         0, 1,
-        { 0, 0, 0, 0 }
+        { 0 }
     },
 
     /* 256x256 PAL 50Hz IL (seems to output the same w/o VID_PAL, ie. in NTSC IL mode) */
@@ -138,7 +138,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         0x8D, 0x34B,
         0x2C, 0x26C,
         0, 1,
-        { 0, 0, 0, 0 }
+        { 0 }
     },
 
     /* 768x480 NTSC 60Hz IL (thanks DCGrendel) */
@@ -155,7 +155,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         0x2e, 0x345,
         0x24, 0x204,
         0, 1,
-        { 0, 0, 0, 0 }
+        { 0 }
     },
 
     /* 768x576 PAL 50Hz IL (DCG) */
@@ -172,7 +172,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         0x36, 0x34b,
         0x2c, 0x26c,
         0, 1,
-        { 0, 0, 0, 0 }
+        { 0 }
     },
 
     /* 768x480 PAL 50Hz IL */
@@ -189,7 +189,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         0x36, 0x34b,
         0x2c, 0x26c,
         0, 1,
-        { 0, 0, 0, 0 }
+        { 0 }
     },
 
     /* 320x240 PAL 50Hz (thanks Marco Martins aka Mekanaizer) */
@@ -206,12 +206,12 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         141, 843,
         44, 620,
         0, 1,
-        { 0, 0, 0, 0 }
+        { 0 }
     },
 
     /* END */
     /* DM_SENTINEL */
-    { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, { 0, 0, 0, 0 } }
+    { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, { 0 } }
 
     /* DM_MODE_COUNT */
 };
