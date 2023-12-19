@@ -69,7 +69,7 @@ enum {
 
 /** \brief  Multi-buffered mode setting.
 
-    OR this with the generic mode to get four framebuffers instead of one.
+    OR this with the generic mode to get VID_MAX_FB framebuffers instead of one.
 */
 #define DM_MULTIBUFFER  0x2000
 
@@ -91,17 +91,6 @@ enum {
     DM_768x576_PAL_IL,              /**< \brief 768x576 PAL Interlaced 50Hz */
     DM_768x480_PAL_IL,              /**< \brief 768x480 PAL Interlaced 50Hz */
     DM_320x240_PAL,                 /**< \brief 320x240 PAL 50Hz */
-    DM_320x240_VGA_MB,              /**< \brief 320x240 VGA 60Hz, 4FBs */
-    DM_320x240_NTSC_MB,             /**< \brief 320x240 NTSC 60Hz, 4FBs */
-    DM_640x480_VGA_MB,              /**< \brief 640x480 VGA 60Hz, 4FBs */
-    DM_640x480_NTSC_IL_MB,          /**< \brief 640x480 NTSC IL 60Hz, 4FBs */
-    DM_800x608_VGA_MB,              /**< \brief 800x608 VGA 60Hz, 4FBs */
-    DM_640x480_PAL_IL_MB,           /**< \brief 640x480 PAL IL 50Hz, 4FBs */
-    DM_256x256_PAL_IL_MB,           /**< \brief 256x256 PAL IL 50Hz, 4FBs */
-    DM_768x480_NTSC_IL_MB,          /**< \brief 768x480 NTSC IL 60Hz, 4FBs */
-    DM_768x576_PAL_IL_MB,           /**< \brief 768x576 PAL IL 50Hz, 4FBs */
-    DM_768x480_PAL_IL_MB,           /**< \brief 768x480 PAL IL 50Hz, 4FBs */
-    DM_320x240_PAL_MB,              /**< \brief 320x240 PAL 50Hz, 4FBs */
     // The below is only for counting..
     DM_SENTINEL,                    /**< \brief Sentinel value, for counting */
     DM_MODE_COUNT                   /**< \brief Number of modes */
