@@ -74,7 +74,7 @@ enum {
 #define DM_MULTIBUFFER  0x2000
 
 //-----------------------------------------------------------------------------
-// More specific modes (and actual indeces into the mode table)
+// More specific modes (and actual indices into the mode table)
 
 /** \brief  Specific display modes */
 enum {

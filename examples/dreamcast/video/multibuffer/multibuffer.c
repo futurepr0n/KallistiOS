@@ -8,7 +8,7 @@
 /*
     This example is based off a combination of the libdream video mode and 
     the bfont examples. It draws out four distinct framebuffers then rotates 
-    beteween them until stopped.
+    between them until stopped.
 
  */
 
@@ -28,15 +28,17 @@ int main(int argc, char **argv) {
     /* Set our starting offset to one letter height away from the 
        top of the screen and two widths from the left */
     o = (640 * BFONT_HEIGHT) + (BFONT_THIN_WIDTH * 2);
-    
+
+    /* Cycle through each frame buffer populating it with different 
+        patterns and text labelling it. */
     for(mb = 0; mb < vid_mode->fb_count; mb++) {
         
         for(y = 0; y < 480; y++)
             for(x = 0; x < 640; x++) {
-                int c = (((x ^ y) & 0xff) >> mb);
-                vram_s[y * 640 + x] = (((c >> 1) << 12)
-                                      | ((c >> 0) << 5)
-                                      | ((c >> 1) << 0)) & 0xffff;
+                int c = (x ^ y) & 0xff;
+                vram_s[y * 640 + x] = ( ((c >> 3) << 12)
+                                      | ((c >> 2) << 5)
+                                      | ((c >> 3) << mb)) & 0xffff;
             }
             
         /* Drawing the special symbols is a bit convoluted. First we'll draw some
@@ -54,6 +56,8 @@ int main(int argc, char **argv) {
 
     printf("\n\nPress all buttons simultaneously to exit.\n");
     fflush(stdout);
+
+    /* Now flip through each frame until stopped */
     while(1) {
         vid_flip(-1);
         timer_spin_sleep(2000);

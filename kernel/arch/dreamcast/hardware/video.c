@@ -2,8 +2,9 @@
 
    video.c
 
-   (c)2001 Anders Clerwall (scav)
-   Parts (c)2000-2001 Megan Potter
+   Copyright (C) 2001 Anders Clerwall (scav)
+   Copyright (C) 2000-2001 Megan Potter
+   Copyright (C) 2023 Donald Haase
  */
 
 #include <dc/video.h>
