@@ -14,7 +14,6 @@
 #include <stdio.h>
 
 #define FB_SIZE 0x200000
-#define FBPOS(n) (n * FB_SIZE)
 
 /*-----------------------------------------------------------------------------*/
 /* This table is indexed w/ DM_* */
@@ -32,8 +31,8 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         CT_VGA,
         0,
         262, 857,
-        0xAC, 0x28,
-        0x15, 0x104,
+        172, 40,
+        21, 260,
         141, 843,
         24, 263,
         0, 1,
@@ -49,8 +48,8 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         CT_ANY,
         0,
         262, 857,
-        0xA4, 0x18,
-        0x15, 0x104,
+        164, 24,
+        21, 260,
         141, 843,
         24, 263,
         0, 1,
@@ -65,11 +64,11 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         VID_INTERLACE,
         CT_VGA,
         0,
-        0x20C, 0x359,
-        0xAC, 0x28,
-        0x15, 0x104,
-        0x7E, 0x345,
-        0x24, 0x204,
+        524, 857,
+        172, 40,
+        21, 260,
+        126, 837,
+        36, 516,
         0, 1,
         { 0 }
     },
@@ -82,11 +81,11 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         VID_INTERLACE,
         CT_ANY,
         0,
-        0x20C, 0x359,
-        0xA4, 0x12,
-        0x15, 0x104,
-        0x7E, 0x345,
-        0x24, 0x204,
+        524, 857,
+        164, 18,
+        21, 260,
+        126, 837,
+        36, 516,
         0, 1,
         { 0 }
     },
@@ -116,11 +115,11 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         VID_INTERLACE | VID_PAL,
         CT_ANY,
         0,
-        0x270, 0x35F,
-        0xAE, 0x2D,
-        0x15, 0x104,
-        0x8D, 0x34B,
-        0x2C, 0x26C,
+        624, 863,
+        174, 45,
+        21, 260,
+        141, 843,
+        44, 620,
         0, 1,
         { 0 }
     },
@@ -135,9 +134,9 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         0,
         624, 863,
         226, 37,
-        0x15, 0x104,
-        0x8D, 0x34B,
-        0x2C, 0x26C,
+        21, 260,
+        141, 843,
+        44, 620,
         0, 1,
         { 0 }
     },
@@ -152,9 +151,9 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         0,
         524, 857,
         96, 18,
-        0x15, 0x104,
-        0x2e, 0x345,
-        0x24, 0x204,
+        21, 260,
+        46, 837,
+        36, 516,
         0, 1,
         { 0 }
     },
@@ -169,9 +168,9 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         0,
         624, 863,
         88, 16,
-        0x18, 0x104,
-        0x36, 0x34b,
-        0x2c, 0x26c,
+        24, 260,
+        54, 843,
+        44, 620,
         0, 1,
         { 0 }
     },
@@ -186,9 +185,9 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         0,
         624, 863,
         88, 16,
-        0x18, 0x104,
-        0x36, 0x34b,
-        0x2c, 0x26c,
+        24, 260,
+        54, 843,
+        44, 620,
         0, 1,
         { 0 }
     },
@@ -302,7 +301,7 @@ void vid_set_mode(int dm, int pm) {
         mode.fb_count = VID_MAX_FB;
 
         for(mb = 0; mb < VID_MAX_FB; mb++)
-            mode.fb_base[mb] = FBPOS(mb);
+            mode.fb_base[mb] = mb * FB_SIZE;
     }
 
     /* We set this here so actual mode is bit-depth independent.. */
