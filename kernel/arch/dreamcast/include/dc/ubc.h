@@ -23,10 +23,14 @@
 #include <sys/cdefs.h>
 __BEGIN_DECLS
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <arch/types.h>
+#include <arch/memory.h>
 
-/** \defgroup ubc   User Break Controller (UBC)
+/** \defgroup ubc   User Break Controller
+    \brief          Driver for the SH4's UBC
+    \ingroup        debugging
 
     The SH4's User Break Controller (UBC) is a CPU peripheral which facilitates
     low-level software debugging. It provides two different channels which can
@@ -54,27 +58,28 @@ __BEGIN_DECLS
     \warning
     This Driver is used internally by the gdb_stub, so care must be taken to
     not utilize the UBC during a GDB debugging session!
+
+    @{
 */
 
-/** \defgroup ubc_regs  Registers
+/** \defgroup ubc_regs Registers
     \brief    UBC Control Registers 
-    \ingroup  ubc
 
     Special-function registers for configuring the UBC.
     
     @{
 */
-#define BARA    (*((vuint32 *)0xff200000))   /**< \brief Break Address A */
-#define BASRA   (*((vuint8  *)0xff000014))   /**< \brief Break ASID */
-#define BAMRA   (*((vuint8  *)0xff200004))   /**< \brief Break Address Mask */
-#define BBRA    (*((vuint16 *)0xff200008))   /**< \brief Break Bus Cycle */
-#define BARB    (*((vuint32 *)0xff20000c))   /**< \brief Break Address B */
-#define BASRB   (*((vuint8  *)0xff000018))   /**< \brief Break ASID */
-#define BAMRB   (*((vuint8  *)0xff200010))   /**< \brief Break Address Mask */
-#define BBRB    (*((vuint16 *)0xff200014))   /**< \brief Break Bus Cycle */
-#define BDRB    (*((vuint32 *)0xff200018))   /**< \brief Break Data */
-#define BDMRB   (*((vuint32 *)0xff20001c))   /**< \brief Break Data Mask */
-#define BRCR    (*((vuint16 *)0xff200020))   /**< \brief Break Control */
+#define BARA  (*((vuint32 *)SH4_REG_UBC_BARA))  /**< \brief Break Address A */
+#define BASRA (*((vuint8  *)SH4_REG_UBC_BASRA)) /**< \brief Break ASID A */
+#define BAMRA (*((vuint8  *)SH4_REG_UBC_BAMRA)) /**< \brief Break Address Mask A */
+#define BBRA  (*((vuint16 *)SH4_REG_UBC_BBRA))  /**< \brief Break Bus Cycle A */
+#define BARB  (*((vuint32 *)SH4_REG_UBC_BARB))  /**< \brief Break Address B */
+#define BASRB (*((vuint8  *)SH4_REG_UBC_BASRB)) /**< \brief Break ASID B */
+#define BAMRB (*((vuint8  *)SH4_REG_UBC_BAMRB)) /**< \brief Break Address Mask B */
+#define BBRB  (*((vuint16 *)SH4_REG_UBC_BBRB))  /**< \brief Break Bus Cycle B */
+#define BDRB  (*((vuint32 *)SH4_REG_UBC_BDRB))  /**< \brief Break Data B */
+#define BDMRB (*((vuint32 *)SH4_REG_UBC_BDMRB)) /**< \brief Break Data Mask B */
+#define BRCR  (*((vuint16 *)SH4_REG_UBC_BRCR))  /**< \brief Break Control */
 /** @} */
 
 // BASRA/BASRB
@@ -95,42 +100,47 @@ __BEGIN_DECLS
 #define SEQ     (1 << 3)  // A, B are independent (0) or sequential (1)
 #define UBDE    (1 << 0)  // Use debug function in DBR register
 
+/** \brief UBC channel specifier */
 typedef enum ubc_channel {
-    ubc_channel_a,
-    ubc_channel_b,
-    ubc_channel_invalid
+    ubc_channel_a,      /**< \brief Channel A */
+    ubc_channel_b,      /**< \brief Channel B */
+    ubc_channel_invalid /**< \brief Invalid channel */
 } ubc_channel_t;
 
+/** \brief UBC address mask specifier */
 typedef enum ubc_address_mask {
-    ubc_address_mask_disable,
-    ubc_address_mask_10,
-    ubc_address_mask_12,
-    ubc_address_mask_all,
-    ubc_address_mask_16,
-    ubc_address_mask_20
+    ubc_address_mask_none,   /**< \brief Disable masking */
+    ubc_address_mask_10,     /**< \brief Low 10 bits */
+    ubc_address_mask_12,     /**< \brief Low 12 bits */
+    ubc_address_mask_all,    /**< \brief All bits */
+    ubc_address_mask_16,     /**< \brief Low 16 bits */
+    ubc_address_mask_20      /**< \brief Low 20 bits */
 } ubc_address_mask_t;
 
-typedef enum ubc_cond_access {
-    ubc_cond_access_disable,
-    ubc_cond_access_instruction,
-    ubc_cond_access_operand,
-    ubc_cond_access_both
-} ubc_cond_access_t;
+/** \brief UBC access condition type specifier */
+typedef enum ubc_access {
+    ubc_access_either,      /**< \brief Either instruction OR operand access */
+    ubc_access_instruction, /**< \brief Instruction access */
+    ubc_access_operand,     /**< \brief Operand access */
+    ubc_access_both         /**< \brief Both instruction AND operand access */
+} ubc_access_t;
 
-typedef enum ubc_cond_rw {
-    ubc_cond_rw_disable,
-    ubc_cond_rw_read,
-    ubc_cond_rw_write,
-    ubc_cond_rw_both
-} ubc_cond_rw_t;
+/** \brief UBC read/write condition type specifier */
+typedef enum ubc_rw {
+    ubc_rw_either,  /**< \brief Either read OR write */
+    ubc_rw_read,    /**< \brief Read-only */
+    ubc_rw_write,   /**< \brief Write-only */
+    ubc_rw_both     /**< \brief Both read AND write */
+} ubc_rw_t;
 
-typedef enum ubc_cond_size {
-    ubc_cond_size_disable,
-    ubc_cond_size_byte,
-    ubc_cond_size_word,
-    ubc_cond_size_longword,
-    ubc_cond_size_quadword
-} ubc_cond_size_t;
+/** \brief UBC size condition type specifier */
+typedef enum ubc_size {
+    ubc_size_any,       /**< \brief No size comparison */
+    ubc_size_byte,      /**< \brief 8-bit sizes */
+    ubc_size_word,      /**< \brief 16-bit sizes */
+    ubc_size_longword,  /**< \brief 32-bit sizes */
+    ubc_size_quadword   /**< \brief 64-bit sizes */
+} ubc_size_t;
 
 typedef struct ubc_breakpoint {
     uintptr_t          address;
@@ -268,7 +278,7 @@ static inline void ubc_break_inst(uintptr_t address, int use_dbr) {
     ubc_pause();
 }
 
-/* More to come.... */
+/** @} */
 
 __END_DECLS
 
