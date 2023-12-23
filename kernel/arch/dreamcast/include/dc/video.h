@@ -96,9 +96,6 @@ enum {
     DM_MODE_COUNT                   /**< \brief Number of modes */
 };
 
-/** \brief  The maximum number of framebuffers available. */
-#define VID_MAX_FB  4   // <-- This should be enough
-
 // These are for the "flags" field of "vid_mode_t"
 /** \defgroup vid_flags Flags for the field in vid_mode_t.
 
@@ -143,7 +140,7 @@ typedef struct vid_mode {
 
     uint16  fb_curr;    /**< \brief Current framebuffer */
     uint16  fb_count;   /**< \brief Number of framebuffers */
-    uint32  fb_base[VID_MAX_FB];    /**< \brief Offset to framebuffers */
+    uint32  fb_size;    /**< \brief Size of each framebuffer */
 } vid_mode_t;
 
 /** \brief  The list of builtin video modes. Do not modify these! */
@@ -191,10 +188,11 @@ void vid_set_start(uint32 base);
 
     This function sets the displayed framebuffer to the specified buffer and
     sets the vram_s and vram_l pointers to point at the next framebuffer, to
-    allow for tearing-free framebuffer-direct drawing. The specified buffer 
-    is masked against (vid_mode->fb_count - 1) in order to loop around.
+    allow for tearing-free framebuffer-direct drawing.
 
-    \param  fb              The framebuffer to display (or -1 for the next one).
+    \param  fb              The framebuffer to display or any other value
+                                to display the next one.
+
 */
 void vid_flip(int fb);
 

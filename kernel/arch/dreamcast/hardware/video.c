@@ -13,14 +13,15 @@
 #include <string.h>
 #include <stdio.h>
 
-#define FB_SIZE 0x200000
+/* The size of the vram. TODO: This needs a better home */
+#define PVR_MEM_SIZE 0x800000
 
 /*-----------------------------------------------------------------------------*/
 /* This table is indexed w/ DM_* */
 vid_mode_t vid_builtin[DM_MODE_COUNT] = {
     /* NULL mode.. */
     /* DM_INVALID = 0 */
-    { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, { 0 } },
+    { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
 
     /* 320x240 VGA 60Hz */
     /* DM_320x240_VGA */
@@ -35,8 +36,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         21, 260,
         141, 843,
         24, 263,
-        0, 1,
-        { 0 }
+        0, 1, 0
     },
 
     /* 320x240 NTSC 60Hz */
@@ -52,8 +52,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         21, 260,
         141, 843,
         24, 263,
-        0, 1,
-        { 0 }
+        0, 1, 0
     },
 
     /* 640x480 VGA 60Hz */
@@ -69,8 +68,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         21, 260,
         126, 837,
         36, 516,
-        0, 1,
-        { 0 }
+        0, 1, 0
     },
 
     /* 640x480 NTSC 60Hz IL */
@@ -86,8 +84,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         21, 260,
         126, 837,
         36, 516,
-        0, 1,
-        { 0 }
+        0, 1, 0
     },
 
     /* 800x608 NTSC 60Hz (VGA) [BROKEN!] */
@@ -103,8 +100,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         21, 82,
         141, 843,
         24, 264,
-        0, 1,
-        { 0 }
+        0, 1, 0
     },
 
     /* 640x480 PAL 50Hz IL */
@@ -120,8 +116,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         21, 260,
         141, 843,
         44, 620,
-        0, 1,
-        { 0 }
+        0, 1, 0
     },
 
     /* 256x256 PAL 50Hz IL (seems to output the same w/o VID_PAL, ie. in NTSC IL mode) */
@@ -137,8 +132,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         21, 260,
         141, 843,
         44, 620,
-        0, 1,
-        { 0 }
+        0, 1, 0
     },
 
     /* 768x480 NTSC 60Hz IL (thanks DCGrendel) */
@@ -154,8 +148,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         21, 260,
         46, 837,
         36, 516,
-        0, 1,
-        { 0 }
+        0, 1, 0
     },
 
     /* 768x576 PAL 50Hz IL (DCG) */
@@ -171,8 +164,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         24, 260,
         54, 843,
         44, 620,
-        0, 1,
-        { 0 }
+        0, 1, 0
     },
 
     /* 768x480 PAL 50Hz IL */
@@ -188,8 +180,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         24, 260,
         54, 843,
         44, 620,
-        0, 1,
-        { 0 }
+        0, 1, 0
     },
 
     /* 320x240 PAL 50Hz (thanks Marco Martins aka Mekanaizer) */
@@ -205,13 +196,12 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         21, 260,
         141, 843,
         44, 620,
-        0, 1,
-        { 0 }
+        0, 1, 0
     },
 
     /* END */
     /* DM_SENTINEL */
-    { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, { 0 } }
+    { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 }
 
     /* DM_MODE_COUNT */
 };
@@ -296,16 +286,22 @@ void vid_set_mode(int dm, int pm) {
         return;
     }
 
-    /* Set the Multi-buffer count and positions */
-    if(mb == DM_MULTIBUFFER) {
-        mode.fb_count = VID_MAX_FB;
-
-        for(mb = 0; mb < VID_MAX_FB; mb++)
-            mode.fb_base[mb] = mb * FB_SIZE;
-    }
-
     /* We set this here so actual mode is bit-depth independent.. */
     mode.pm = pm;
+
+    /* Set the Multi-buffer count and positions */
+    if(mb == DM_MULTIBUFFER) {
+
+        /* Calculate basic size needed for a framebuffer */
+        mode.fb_size = (mode.width * mode.height) * vid_pmode_bpp[mode.pm];
+
+        /* Ensure the FBs are 32-bit aligned */
+        if(mode.fb_size % 4)
+            mode.fb_size = (mode.fb_size + 4) & ~3;
+
+        /* Fill vram with framebuffers */
+        mode.fb_count = PVR_MEM_SIZE / mode.fb_size;
+    }
 
     /* This is also to be generic */
     mode.cable_type = ct;
@@ -345,10 +341,10 @@ void vid_set_mode_ex(vid_mode_t *mode) {
             mode->scanlines *= 2;
     }
 
-    dbglog(DBG_INFO, "vid_set_mode: %ix%i%s %s%s\n", mode->width, mode->height,
+    dbglog(DBG_INFO, "vid_set_mode: %ix%i%s %s with %i framebuffers.\n", mode->width, mode->height,
            (mode->flags & VID_INTERLACE) ? "IL" : "",
            (mode->cable_type == CT_VGA) ? "VGA" : (mode->flags & VID_PAL) ? "PAL" : "NTSC",
-           (mode->fb_count > 1) ? " multi-buffered" : "");
+           mode->fb_count);
 
     vid_border_color(0, 0, 0);
 
@@ -435,7 +431,7 @@ void vid_set_mode_ex(vid_mode_t *mode) {
     vid_mode = &currmode;
 
     /* Set up the framebuffer */
-    vid_mode->fb_curr = -1;
+    vid_mode->fb_curr = ~0;
     vid_flip(0);
 
     /* Set cable type */
@@ -470,23 +466,24 @@ void vid_flip(int fb) {
 
     oldfb = vid_mode->fb_curr;
 
-    if(fb < 0) {
+    if((fb < 0) || (fb >= vid_mode->fb_count)) {
         vid_mode->fb_curr++;
     }
     else {
         vid_mode->fb_curr = fb;
     }
 
-    vid_mode->fb_curr &= (vid_mode->fb_count - 1);
+    /* Roll over */
+    vid_mode->fb_curr = vid_mode->fb_curr % vid_mode->fb_count;
 
     if(vid_mode->fb_curr == oldfb) {
         return;
     }
 
-    vid_set_start(vid_mode->fb_base[vid_mode->fb_curr]);
+    vid_set_start(vid_mode->fb_size * vid_mode->fb_curr);
 
     /* Set the vram_* pointers as expected */
-    base = vid_mode->fb_base[(vid_mode->fb_curr + 1) & (vid_mode->fb_count - 1)];
+    base = vid_mode->fb_size * ((vid_mode->fb_curr + 1) % vid_mode->fb_count);
     vram_s = (uint16*)(PVR_RAM_BASE | base);
     vram_l = (uint32*)(PVR_RAM_BASE | base);
 }
