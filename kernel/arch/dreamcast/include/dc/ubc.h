@@ -77,7 +77,7 @@ typedef enum ubc_address_mask {
 
 /** \brief UBC access condition type specifier */
 typedef enum ubc_access {
-    ubc_access_either,      /**< \brief Either instruction OR operand access */
+    ubc_access_either,      /**< \brief Either instruction OR operand access PROBABLY DISABLED*/
     ubc_access_instruction, /**< \brief Instruction access */
     ubc_access_operand,     /**< \brief Operand access */
     ubc_access_both         /**< \brief Both instruction AND operand access */
@@ -102,7 +102,7 @@ typedef enum ubc_size {
 
 /** \brief UBC breakpoint structure */
 typedef struct ubc_breakpoint {
-    uintptr_t  address;
+    uintptr_t address;
 
     struct { 
         ubc_address_mask_t address_mask;
@@ -117,13 +117,13 @@ typedef struct ubc_breakpoint {
     } asid;
 
     struct {
-        bool       enabled;
-        uintptr_t  value;
-        uintptr_t  mask;
+        bool      enabled;
+        uintptr_t value;
+        uintptr_t mask;
     } data;
 
     struct {
-        bool       break_after;
+        bool break_after;
     } instr;
 
     struct ubc_breakpoint *next;
