@@ -23,11 +23,8 @@
 #include <sys/cdefs.h>
 __BEGIN_DECLS
 
-#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <arch/types.h>
-#include <arch/memory.h>
 
 /** \defgroup ubc   User Break Controller
     \brief          Driver for the SH4's UBC
@@ -62,6 +59,10 @@ __BEGIN_DECLS
 
     @{
 */
+
+/** \cond Forward declarations*/
+struct irq_context;
+/** \endcond */
 
 #define UBC_BRK() 0x003B /* needs to be a constant, not known to the assembler */
 
@@ -130,17 +131,28 @@ typedef struct ubc_breakpoint {
 } ubc_breakpoint_t;
 
 /** \brief UBC breakpoint user callback */
-typedef bool (*ubc_break_func_t)(const ubc_breakpoint *bp, 
-                                 const irq_context_t  *ctx, 
-                                 void                 *user_data);
+typedef bool (*ubc_break_func_t)(const ubc_breakpoint_t   *bp, 
+                                 const struct irq_context *ctx, 
+                                 void                     *user_data);
 
 bool ubc_enable_breakpoint(const ubc_breakpoint_t *bp,
                            ubc_break_func_t       callback,
-                           void                   *user_data)
+                           void                   *user_data);
 
 bool ubc_disable_breakpoint(const ubc_breakpoint_t *bp);
 
 
+
+void ubc_set_break_handler(ubc_break_func_t callback,
+                           void             *user_data);
+
+void ubc_break(void);
+
+void ubc_init(void);
+
+void ubc_shutdown(void);
+
+#if 0
 /** \brief  Pause after setting UBC parameters. 
  
     Required delay after changing the UBC's configuration.
@@ -198,6 +210,7 @@ static inline void ubc_break_inst(uintptr_t address, int use_dbr) {
     BBRA = 0x1C;    /* Instruction cycle, no size constraint */
     ubc_pause();
 }
+#endif
 
 /** @} */
 

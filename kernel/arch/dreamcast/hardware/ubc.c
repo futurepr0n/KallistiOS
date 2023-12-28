@@ -4,8 +4,14 @@
    Copyright (C) 2023 Falco Girgis
 */
 
-
 #include <dc/ubc.h>
+
+#include <arch/types.h>
+#include <arch/memory.h>
+#include <arch/irq.h>
+
+#include <string.h>
+#include <assert.h>
 
 #define BAR(o)  (*((vuint32 *)(SH4_REG_UBC_BARA  + (unsigned)o * 0xc)))
 #define BASR(o) (*((vuint8  *)(SH4_REG_UBC_BASRA + (unsigned)o * 0x4)))
@@ -24,18 +30,24 @@
 #define BDMRB (*((vuint32 *)SH4_REG_UBC_BDMRB)) /**< Break Data Mask B */
 #define BRCR  (*((vuint16 *)SH4_REG_UBC_BRCR))  /**< Break Control */
 
+// BASR
+#define BASM            (1 << 2)  /* Use ASID (0) or not (1) */
+#define BAM_BIT_HIGH    3
+#define BAM_BITS        3
+#define BAM_HIGH        (1 << BAM_BIT_HIGH)
+#define BAM_LOW         0x3
+#define BAM             (BAM_HIGH | BAM_LOW)     /* Which bits of BARA/BARB get used */
 
-// BASRA/BASRB
-#define BASM  (1 << 2)  /* Use ASID (0) or not (1) */
-#define BAM   (0xb)     /* Which bits of BARA/BARB get used */
-
-// BBRA/BBRB
-#define ID_BIT 4
-#define ID     (3 << ID_BIT) // Instruction vs Data (or Either or Neither?)
-#define RW_BIT 2
-#define RW     (3 << RW_BIT) // Access Type (Read, Write, Both, Neither?) 
-#define SZ_BIT_HIGH 6
-#define SZ     (0x43)   // Data size (Not used, byte, word, longword, quadword)
+// BBR
+#define ID_BIT          4
+#define ID              (3 << ID_BIT) // Instruction vs Data (or Either or Neither?)
+#define RW_BIT          2
+#define RW              (3 << RW_BIT) // Access Type (Read, Write, Both, Neither?) 
+#define SZ_BIT_HIGH     6
+#define SZ_BITS         3
+#define SZ_HIGH         (1 << SZ_BIT_HIGH)
+#define SZ_LOW          0x3
+#define SZ              (SZ_HIGH | SZ_LOW)   // Data size (Not used, byte, word, longword, quadword)
 
 // BRCR
 #define CMFA    (1 << 15) // Set when break condition A is met (not cleared)
@@ -46,10 +58,9 @@
 #define SEQ     (1 << 3)  // A, B are independent (0) or sequential (1)
 #define UBDE    (1 << 0)  // Use debug function in DBR register
 
-/** \brief UBC channel specifier */
 typedef enum ubc_channel {
-    ubc_channel_a,      /**< \brief Channel A */ 
-    ubc_channel_b,      /**< \brief Channel B */
+    ubc_channel_a,      
+    ubc_channel_b,     
     ubc_channel_count
 } ubc_channel_t;
 
@@ -59,6 +70,9 @@ static struct ubc_channel_state {
     void                   *ud;
 } channel_state[ubc_channel_count] = { 0 };
 
+static ubc_break_func_t break_cb = NULL;
+static void *break_ud = NULL;
+
 static void enable_breakpoint(ubc_channel_t           ch,
                               const ubc_breakpoint_t *bp,
                               ubc_break_func_t        cb,
@@ -66,36 +80,57 @@ static void enable_breakpoint(ubc_channel_t           ch,
     /* Set state variables. */
     channel_state[ch].bp = bp;
     channel_state[ch].cb = cb;
-    channel_state[ch].ub = ub;
+    channel_state[ch].ud = ud;
 
-    /* Configure registers. */
+    /* Configure Registers. */
+
+    /* Address */
     BAR(ch) = bp->address;
 
-    // SET ADDRESS MASK
-    BBR(ch) |= bp->cond.access << ID_BIT; /* Set Access Type */
-    BBR(ch) |= bp->cond.rw << RW_BIT;
-    BBR(ch) |= /* Set size */
+    /* Address mask */
+    BASR(ch) = ((bp->cond.address_mask << (BAM_BIT_HIGH - (BAM_BITS - 1))) & BAM_HIGH) |
+                (bp->cond.address_mask & BAM_LOW);
 
+    /* Access type */
+    BBR(ch) |= bp->cond.access << ID_BIT; /* Set Access Type */
+    /* Read/Write type */
+    BBR(ch) |= bp->cond.rw << RW_BIT;
+    /* Size type */
+    BBR(ch) |= ((bp->cond.size << (SZ_BIT_HIGH - (SZ_BITS - 1))) & SZ_HIGH) |
+                (bp->cond.size & SZ_LOW);
+
+    /* ASID */
     if(bp->asid.enabled) {
-        // set ASID
+        /* ASID value */
+        BAMR(ch) = bp->asid.value;
+        /* ASID enable */
         BASR(ch) &= ~BASM;
     }
     else {
+        /* ASID disable */
         BASR(ch) |= BASM;
     }
 
+    /* Data (channel B only) */
     if(bp->data.enabled) {
-        BRCR |= DBEB;
+        /* Data value */
         BDRB = bp->data.value;
+        /* Data mask */
         BDMRB = bp->data.mask;
+        /* Data enable */
+        BRCR |= DBEB;
     }
     else {
+        /* Data disable */
         BRCR &= ~DBEB;
     }
 
-    if(bp->instr.break_after) 
-        BRCR |= (ch == ubc_channel_a)? PCBA : PBCBB;
+    /* Instruction */
+    if(bp->instr.break_after)
+        /* Instruction break after */ 
+        BRCR |= (ch == ubc_channel_a)? PCBA : PCBB;
     else 
+        /* Instruction break before */
         BRCR &= (ch == ubc_channel_a)? ~PCBA : ~PCBB;
 }
 
@@ -127,9 +162,8 @@ __no_inline bool ubc_enable_breakpoint(const ubc_breakpoint_t *bp,
                 return false;
 
             enable_breakpoint(ubc_channel_b, bp, callback, user_data);
-
-        /* We can take either channel */ 
         } 
+        /* We can take either channel */ 
         else {
             /* Take whichever channel is free. */
             if(!channel_state[ubc_channel_a].bp)
@@ -148,10 +182,10 @@ __no_inline bool ubc_enable_breakpoint(const ubc_breakpoint_t *bp,
 }
 
 static void disable_breakpoint(ubc_channel_t ch) {
-    /* Clear UBC conditions for the given channel. */
-    BBR(ch) = 0;
     /* Clear our state for the given channel. */
     memset(&channel_state[ch], 0, sizeof(struct ubc_channel_state));
+    /* Clear UBC conditions for the given channel. */
+    BBR(ch) = 0;
 }
 
 // Need to handle multi-breakpoint
@@ -182,4 +216,65 @@ __no_inline bool ubc_disable_breakpoint(const ubc_breakpoint_t *bp) {
 
     /* We never found your breakpoint! */
     return false;
+}
+
+static void set_dbr(uintptr_t address) { 
+
+}
+
+static void dbr_handler(void) {
+    bool serviced = false;
+
+    if(BRCR & CMFA) {
+        bool disable = false;
+
+        if(channel_state[ubc_channel_a].cb)
+            disable = channel_state[ubc_channel_a].cb(channel_state[ubc_channel_a].bp,
+                                                      irq_ctx,
+                                                      channel_state[ubc_channel_a].ud);
+        if(disable) {
+            disable_breakpoint(ubc_channel_a);
+            if(BRCR & SEQ)
+                disable_breakpoint(ubc_channel_b);
+        }
+
+        BRCR &= ~CMFA;
+        
+        serviced = true;
+    }
+
+    if(BRCR & CMFB) {
+        if(!(BRCR & SEQ))
+            if(channel_state[ubc_channel_b].cb)
+                if(channel_state[ubc_channel_b].cb(channel_state[ubc_channel_b].bp,
+                                                   irq_ctx,
+                                                   channel_state[ubc_channel_b].ud))
+                    disable_breakpoint(ubc_channel_b);
+
+        BRCR &= ~CMFB;
+
+        serviced = true;
+    }
+
+    if(!serviced && break_cb) {
+        break_cb(NULL, irq_ctx, break_ud);
+    }
+}
+
+__no_inline void ubc_init(void) { 
+    disable_breakpoint(ubc_channel_a);
+    disable_breakpoint(ubc_channel_b);
+
+    set_dbr((uintptr_t)dbr_handler);
+
+    BRCR = UBDE;
+}
+
+__no_inline void ubc_shutdown(void) {
+    disable_breakpoint(ubc_channel_a);
+    disable_breakpoint(ubc_channel_b);
+
+    set_dbr((uintptr_t)NULL);
+
+    BRCR = 0;
 }
