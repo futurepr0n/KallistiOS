@@ -23,6 +23,7 @@
 #include <sys/cdefs.h>
 __BEGIN_DECLS
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <arch/types.h>
@@ -142,83 +143,27 @@ typedef enum ubc_size {
     ubc_size_quadword   /**< \brief 64-bit sizes */
 } ubc_size_t;
 
-typedef struct ubc_breakpoint {
-    uintptr_t          address;
-    ubc_address_mask_t address_mask;
-    uint8_t            asid;
-    bool               use_asid;
-    ubc_cond_access_t  access_cond;
-    ubc_cond_rw_t      rw_cond;
-    ubc_cond_size_t    size_cond;
-    bool               post_instruction;
-    uintptr_t          data;
-    uintptr_t          data_mask;
-    bool               use_data;
-} ubc_breakpoint_t;
-
-static inline ubc_breakpoint_t* ubc_breakpoint_instruction(ubc_breakpoint_t* breakpoint,
-                                                           uintptr_t address);
-
-static inline ubc_breakpoint_t* ubc_breakpoint_data_write(ubc_breakpoint_t* breakpoint,
-                                                          uintptr_t address);
-
-ubc_breakpoint_t bp;
-ubc_enable_breakpoint(ubc_available_channel(),
-                      ubc_breakpoint_data_write(&bp, 0xdeadbeef));
-
-
-static inline bool ubc_breakpoint_enable(ubc_channel_t channel,
-                                         const ubc_breakpoint* breakpoint);
-
-
-
 typedef (*ubc_debug_func_t)(...);
-
-
-
-static inline bool ubc_enable_break_cond(ubc_channel_t channel,
-                                         uintptr_t address,
-                                         ubc_address_mask_t address_mask,
-                                         ubc_cond_access_t access_type,
-                                         ubc_cond_rw_t rw_type,
-                                         ubc_cond_size_t size_type);
+#if 0 
+static inline bool ubc_enable_break(ubc_channel_t channel,
+                                    uintptr_t address,
+                                    ubc_address_mask_t address_mask,
+                                    ubc_access_t access_type,
+                                    ubc_rw_t rw_type,
+                                    ubc_size_t size_type);
 static inline bool ubc_disable_break(ubc_channel_t channel);
 
 static inline bool ubc_enable_break_data(ubc_channel_t channel,
                                          uintptr_t address,
                                          ubc_address_mask_t address_mask,
-                                         ubc_cond_rw_t rw_type,
-                                         ubc_cond_size_t size_type);
+                                         ubc_rw_t rw_type,
+                                         ubc_size_t size_type);
 
 static inline bool ubc_enable_break_instruction(ubc_channel_t channel,
                                                 uintptr_t address, 
                                                 ubc_address_mask_t address_mask,
                                                 bool before_execution);
-
-static inline bool ubc_set_break_asid(ubc_channel_t channel, uint8_t asid);
-static inline bool ubc_set_break_data(uintptr_t data, uintptr_t mask);  // requires operand size specified first
-static inline void ubc_set_break_sequential(bool enabled);
-
-static void ubc_set_debug_function(ubc_debug_func_t *callback);
-
-static bool ubc_break_active(ubc_channel_t channel);
-static bool ubc_break_clear(ubc_channel_t channel);
-
-
-static inline bool          ubc_breakpoint_set(ubc_channel_t channel, 
-                                               uint8_t       asid, 
-                                               uintptr_t     address, 
-                                               uint8_t       address_mask,
-                                               uint16_t      bus_cycle,
-                                               uintptr_t     data,
-                                               uintptr_t     data_mask,
-                                               uint8_t       control);
-
-
-static inline void          ubc_delay(void) {}
-
-static inline void          ubc_init(void) {}
-static inline void          ubc_shutdown(void) {}
+#endif
 
 /** \brief  Pause after setting UBC parameters. 
  
@@ -284,3 +229,38 @@ __END_DECLS
 
 #endif  /* __DC_UBC_H */
 
+
+
+
+typedef struct ubc_breakpoint {
+    uintptr_t          address;
+    ubc_address_mask_t address_mask;
+    uint8_t            asid;
+    ubc_access_t       access;
+    ubc_rw_t           rw;
+    ubc_size_t         size;
+    uintptr_t          data;
+    uintptr_t          data_mask;
+    size_t             matches;
+
+    struct {
+        uint8_t        use_asid  : 1;
+        uint8_t        pre_instr : 1;
+        uint8_t        use_size  : 1;
+        uint8_t        use_data  : 1;
+        uint8_t                  : 5;
+    } enable_flags;
+} ubc_breakpoint_t;
+
+#if 0
+
+static inline ubc_breakpoint_t* ubc_breakpoint_instruction(ubc_breakpoint_t* breakpoint,
+                                                           uintptr_t address);
+
+static inline ubc_breakpoint_t* ubc_breakpoint_data_write(ubc_breakpoint_t* breakpoint,
+                                                          uintptr_t address);
+
+
+static inline bool ubc_breakpoint_enable(ubc_channel_t channel,
+                                         const ubc_breakpoint* breakpoint);
+#endif
