@@ -63,50 +63,7 @@ __BEGIN_DECLS
     @{
 */
 
-/** \defgroup ubc_regs Registers
-    \brief    UBC Control Registers 
-
-    Special-function registers for configuring the UBC.
-    
-    @{
-*/
-#define BARA  (*((vuint32 *)SH4_REG_UBC_BARA))  /**< \brief Break Address A */
-#define BASRA (*((vuint8  *)SH4_REG_UBC_BASRA)) /**< \brief Break ASID A */
-#define BAMRA (*((vuint8  *)SH4_REG_UBC_BAMRA)) /**< \brief Break Address Mask A */
-#define BBRA  (*((vuint16 *)SH4_REG_UBC_BBRA))  /**< \brief Break Bus Cycle A */
-#define BARB  (*((vuint32 *)SH4_REG_UBC_BARB))  /**< \brief Break Address B */
-#define BASRB (*((vuint8  *)SH4_REG_UBC_BASRB)) /**< \brief Break ASID B */
-#define BAMRB (*((vuint8  *)SH4_REG_UBC_BAMRB)) /**< \brief Break Address Mask B */
-#define BBRB  (*((vuint16 *)SH4_REG_UBC_BBRB))  /**< \brief Break Bus Cycle B */
-#define BDRB  (*((vuint32 *)SH4_REG_UBC_BDRB))  /**< \brief Break Data B */
-#define BDMRB (*((vuint32 *)SH4_REG_UBC_BDMRB)) /**< \brief Break Data Mask B */
-#define BRCR  (*((vuint16 *)SH4_REG_UBC_BRCR))  /**< \brief Break Control */
-/** @} */
-
-// BASRA/BASRB
-#define BASMA  (1 << 2)  /* Use ASID (0) or not (1) */
-#define BAMA   (0xb)     /* Which bits of BARA/BARB get used */
-
-// BBRA/BBRB
-#define IDA     (3 << 4) // Instruction vs Data (or Either or Neither?)
-#define RWA     (3 << 2) // Access Type (Read, Write, Both, Neither?) 
-#define SZA     (0x43)   // Data size (Not used, byte, word, longword, quadword)
-
-// BRCR
-#define CMFA    (1 << 15) // Set when break condition A is met (not cleared)
-#define CMFB    (1 << 14) // Set when break condition B is met (not cleared)
-#define PCBA    (1 << 10) // Instruction break condition A is before or after instruction execution
-#define DBEB    (1 << 7)  // Include Data Bus condition for channel B
-#define PCBB    (1 << 6)  // Instruction break condition B is before or after instruction execution
-#define SEQ     (1 << 3)  // A, B are independent (0) or sequential (1)
-#define UBDE    (1 << 0)  // Use debug function in DBR register
-
-/** \brief UBC channel specifier */
-typedef enum ubc_channel {
-    ubc_channel_a,      /**< \brief Channel A */
-    ubc_channel_b,      /**< \brief Channel B */
-    ubc_channel_invalid /**< \brief Invalid channel */
-} ubc_channel_t;
+#define UBC_BRK() 0x003B /* needs to be a constant, not known to the assembler */
 
 /** \brief UBC address mask specifier */
 typedef enum ubc_address_mask {
@@ -143,27 +100,46 @@ typedef enum ubc_size {
     ubc_size_quadword   /**< \brief 64-bit sizes */
 } ubc_size_t;
 
-typedef (*ubc_debug_func_t)(...);
-#if 0 
-static inline bool ubc_enable_break(ubc_channel_t channel,
-                                    uintptr_t address,
-                                    ubc_address_mask_t address_mask,
-                                    ubc_access_t access_type,
-                                    ubc_rw_t rw_type,
-                                    ubc_size_t size_type);
-static inline bool ubc_disable_break(ubc_channel_t channel);
+/** \brief UBC breakpoint structure */
+typedef struct ubc_breakpoint {
+    uintptr_t  address;
 
-static inline bool ubc_enable_break_data(ubc_channel_t channel,
-                                         uintptr_t address,
-                                         ubc_address_mask_t address_mask,
-                                         ubc_rw_t rw_type,
-                                         ubc_size_t size_type);
+    struct { 
+        ubc_address_mask_t address_mask;
+        ubc_access_t       access;
+        ubc_rw_t           rw;
+        ubc_size_t         size;    
+    } cond;
 
-static inline bool ubc_enable_break_instruction(ubc_channel_t channel,
-                                                uintptr_t address, 
-                                                ubc_address_mask_t address_mask,
-                                                bool before_execution);
-#endif
+    struct { 
+        bool    enabled;
+        uint8_t value;
+    } asid;
+
+    struct {
+        bool       enabled;
+        uintptr_t  value;
+        uintptr_t  mask;
+    } data;
+
+    struct {
+        bool       break_after;
+    } instr;
+
+    struct ubc_breakpoint *next;
+} ubc_breakpoint_t;
+
+/** \brief UBC breakpoint user callback */
+typedef bool (*ubc_break_func_t)(const ubc_breakpoint *bp, 
+                                 const irq_context_t  *ctx, 
+                                 void                 *user_data);
+
+bool ubc_enable_breakpoint(const ubc_breakpoint_t *bp,
+                           ubc_break_func_t       callback,
+                           void                   *user_data)
+
+bool ubc_disable_breakpoint(const ubc_breakpoint_t *bp);
+
 
 /** \brief  Pause after setting UBC parameters. 
  
@@ -228,39 +204,3 @@ static inline void ubc_break_inst(uintptr_t address, int use_dbr) {
 __END_DECLS
 
 #endif  /* __DC_UBC_H */
-
-
-
-
-typedef struct ubc_breakpoint {
-    uintptr_t          address;
-    ubc_address_mask_t address_mask;
-    uint8_t            asid;
-    ubc_access_t       access;
-    ubc_rw_t           rw;
-    ubc_size_t         size;
-    uintptr_t          data;
-    uintptr_t          data_mask;
-    size_t             matches;
-
-    struct {
-        uint8_t        use_asid  : 1;
-        uint8_t        pre_instr : 1;
-        uint8_t        use_size  : 1;
-        uint8_t        use_data  : 1;
-        uint8_t                  : 5;
-    } enable_flags;
-} ubc_breakpoint_t;
-
-#if 0
-
-static inline ubc_breakpoint_t* ubc_breakpoint_instruction(ubc_breakpoint_t* breakpoint,
-                                                           uintptr_t address);
-
-static inline ubc_breakpoint_t* ubc_breakpoint_data_write(ubc_breakpoint_t* breakpoint,
-                                                          uintptr_t address);
-
-
-static inline bool ubc_breakpoint_enable(ubc_channel_t channel,
-                                         const ubc_breakpoint* breakpoint);
-#endif
