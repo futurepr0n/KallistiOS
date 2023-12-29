@@ -87,22 +87,6 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
         0, 1, 0
     },
 
-    /* 800x608 NTSC 60Hz (VGA) [BROKEN!] */
-    /* DM_800x608_VGA */
-    {
-        DM_800x608,
-        320, 240,
-        VID_INTERLACE,
-        1/*CT_ANY*/, /* This will block the mode from being set. */
-        0,
-        262, 857,
-        164, 24,
-        21, 82,
-        141, 843,
-        24, 264,
-        0, 1, 0
-    },
-
     /* 640x480 PAL 50Hz IL */
     /* DM_640x480_PAL_IL */
     {
