@@ -131,14 +131,6 @@ typedef enum vid_display_mode {
     DM_MODE_COUNT                   /**< \brief Number of modes */
 } vid_display_mode_t;
 
-<<<<<<< HEAD
-=======
-/** \brief   The maximum number of framebuffers available.
-    \ingroup video_modes
- */
-#define VID_MAX_FB  4   // <-- This should be enough
-
->>>>>>> master
 // These are for the "flags" field of "vid_mode_t"
 /** \defgroup vid_flags Flags
     \brief              vid_mode_t Field Flags
