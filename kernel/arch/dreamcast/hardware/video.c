@@ -60,7 +60,7 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
     {
         DM_640x480,
         640, 480,
-        VID_INTERLACE,
+        0,
         CT_VGA,
         0,
         524, 857,
