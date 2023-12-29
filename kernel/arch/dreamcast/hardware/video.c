@@ -401,14 +401,14 @@ void vid_set_mode_ex(vid_mode_t *mode) {
 
     /* Bitmap window */
     PVR_SET(PVR_BITMAP_X, mode->bitmapx);
-    data = mode->bitmapy;
 
+    /* The upper 16 bits map to field-2 and need to be one more for PAL */
     if(mode->flags & VID_PAL) {
-        data++;
+        PVR_SET(PVR_BITMAP_Y, ((mode->bitmapy + 1) << 16) | mode->bitmapy);
     }
-
-    data = (data << 16) | mode->bitmapy;
-    PVR_SET(PVR_BITMAP_Y, data);
+    else {
+        PVR_SET(PVR_BITMAP_Y, (mode->bitmapy << 16) | mode->bitmapy);
+    }
 
     /* Everything is ok */
     memcpy(&currmode, mode, sizeof(vid_mode_t));
