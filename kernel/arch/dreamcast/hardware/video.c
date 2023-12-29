@@ -220,7 +220,7 @@ int vid_check_cable(void) {
 #else
     /* XXXX: This still needs to be figured out for NAOMI. For now, assume
        VGA mode. */
-    return 0;
+    return CT_VGA;
 #endif
 }
 
@@ -315,7 +315,8 @@ void vid_set_mode_ex(vid_mode_t *mode) {
 
     /* Blank screen and reset display enable (looks nicer) */
     PVR_SET(PVR_VIDEO_CFG, PVR_GET(PVR_VIDEO_CFG) | 8);    /* Blank */
-    PVR_SET(PVR_FB_CFG_1, PVR_GET(PVR_FB_CFG_1) & ~1);   /* Display disable */
+    PVR_SET(PVR_FB_CFG_1, PVR_GET(PVR_FB_CFG_1) & ~1);     /* Display disable */
+    vid_border_color(0, 0, 0);                             /* Blank border */
 
     /* Clear interlace flag if VGA (this maybe should be in here?) */
     if(ct == CT_VGA) {
@@ -329,8 +330,6 @@ void vid_set_mode_ex(vid_mode_t *mode) {
            (mode->flags & VID_INTERLACE) ? "IL" : "",
            (mode->cable_type == CT_VGA) ? "VGA" : (mode->flags & VID_PAL) ? "PAL" : "NTSC",
            mode->fb_count);
-
-    vid_border_color(0, 0, 0);
 
     /* Pixelformat */
     data = (mode->pm << 2);
