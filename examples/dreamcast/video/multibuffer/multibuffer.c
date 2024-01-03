@@ -6,7 +6,7 @@
 */
 
 /*
-    This example is based off a combination of the libdream video mode and 
+    This example is based off a combination of the libdream video examples and 
     the bfont examples. It draws out four distinct framebuffers then rotates 
     between them until stopped.
 
