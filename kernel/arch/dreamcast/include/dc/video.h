@@ -103,7 +103,7 @@ typedef enum vid_display_mode_generic {
 /** \brief   Multi-buffered mode setting.
     \ingroup video_modes_display
 
-    OR this with the generic mode to get VID_MAX_FB framebuffers instead of one.
+    OR this with the generic mode to get multiple framebuffers instead of one.
 */
 #define DM_MULTIBUFFER  0x2000
 
