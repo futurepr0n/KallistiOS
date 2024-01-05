@@ -15,10 +15,12 @@
 #include <string.h>
 #include <assert.h>
 
-#define BAR(o)  (*((vuint32 *)(SH4_REG_UBC_BARA  + (unsigned)o * 0xc)))
-#define BASR(o) (*((vuint8  *)(SH4_REG_UBC_BASRA + (unsigned)o * 0x4)))
-#define BAMR(o) (*((vuint8  *)(SH4_REG_UBC_BAMRA + (unsigned)o * 0xc)))
-#define BBR(o)  (*((vuint16 *)(SH4_REG_UBC_BBRA  + (unsigned)o * 0xc)))
+#include <stdio.h>
+
+#define BAR(o)  (*((vuint32 *)(uintptr_t)(SH4_REG_UBC_BARA  + (unsigned)o * 0xc)))
+#define BASR(o) (*((vuint8  *)(uintptr_t)(SH4_REG_UBC_BASRA + (unsigned)o * 0x4)))
+#define BAMR(o) (*((vuint8  *)(uintptr_t)(SH4_REG_UBC_BAMRA + (unsigned)o * 0xc)))
+#define BBR(o)  (*((vuint16 *)(uintptr_t)(SH4_REG_UBC_BBRA  + (unsigned)o * 0xc)))
 
 #define BARA  (BAR(ubc_channel_a))              /**< Break Address A */
 #define BASRA (BASR(ubc_channel_a))             /**< Break ASID A */
@@ -75,10 +77,31 @@ static struct ubc_channel_state {
 static ubc_break_func_t break_cb = NULL;
 static void *break_ud = NULL;
 
+inline static uint8_t get_access_mask(ubc_access_t access) {
+    switch(access) {
+    case ubc_access_either:
+        return 0x3;
+    default:
+        return access;
+    }
+}
+
+inline static uint8_t get_rw_mask(ubc_rw_t rw) {
+    switch(rw) {
+    case ubc_rw_either:
+        return 0x3;
+    default:
+        return rw;
+    }
+}
+
 static void enable_breakpoint(ubc_channel_t           ch,
                               const ubc_breakpoint_t *bp,
                               ubc_break_func_t        cb,
                               void                   *ud) {
+
+    printf("ACTUALLY ENABLING BP\n");
+    fflush(stdout);
     /* Set state variables. */
     channel_state[ch].bp = bp;
     channel_state[ch].cb = cb;
@@ -93,10 +116,10 @@ static void enable_breakpoint(ubc_channel_t           ch,
     BASR(ch) = ((bp->cond.address_mask << (BAM_BIT_HIGH - (BAM_BITS - 1))) & BAM_HIGH) |
                 (bp->cond.address_mask & BAM_LOW);
 
-    /* Access type */
-    BBR(ch) |= bp->cond.access << ID_BIT; /* Set Access Type */
+    /* Set Access Type */
+    BBR(ch) |= get_access_mask(bp->cond.access) << ID_BIT; 
     /* Read/Write type */
-    BBR(ch) |= bp->cond.rw << RW_BIT;
+    BBR(ch) |= get_rw_mask(bp->cond.rw) << RW_BIT;
     /* Size type */
     BBR(ch) |= ((bp->cond.size << (SZ_BIT_HIGH - (SZ_BITS - 1))) & SZ_HIGH) |
                 (bp->cond.size & SZ_LOW);
@@ -140,6 +163,8 @@ bool __no_inline ubc_enable_breakpoint(const ubc_breakpoint_t *bp,
                                        ubc_break_func_t       callback,
                                        void                   *user_data) {
 
+    printf("ENABLING BP - %u\n", (unsigned)bp->address);
+
     /* Check if we're dealing with a combined sequential breakpoint */
     if(bp->next) {
         /* Basic sanity checks for debug builds */
@@ -167,6 +192,8 @@ bool __no_inline ubc_enable_breakpoint(const ubc_breakpoint_t *bp,
         } 
         /* We can take either channel */ 
         else {
+            printf("boutta take channel \n\n");
+
             /* Take whichever channel is free. */
             if(!channel_state[ubc_channel_a].bp)
                 enable_breakpoint(ubc_channel_a, bp, callback, user_data);
@@ -220,9 +247,11 @@ bool __no_inline ubc_disable_breakpoint(const ubc_breakpoint_t *bp) {
     return false;
 }
 
-static void dbr_handler(void) {
+static void dbr_handler(int evt) {
     bool serviced = false;
     irq_context_t *irq_ctx = NULL;
+
+    arch_stk_trace(0);
 
     if(BRCR & CMFA) {
         bool disable = false;
@@ -259,8 +288,10 @@ static void dbr_handler(void) {
         if(break_cb)
             break_cb(NULL, irq_ctx, break_ud);
         else
-            dbglog(DBG_ERROR, "Unhandled UBC break request!\n");
+            dbglog(DBG_CRITICAL, "Unhandled UBC break request!\n");
     }
+
+    __asm("STC SGR, R15" : : );
 }
 
 static inline void set_dbr(uintptr_t address) {
@@ -274,6 +305,8 @@ void __no_inline ubc_init(void) {
     set_dbr((uintptr_t)dbr_handler);
 
     BRCR = UBDE;
+
+   // printf("UBC INITTED!\n");
 }
 
 void __no_inline ubc_shutdown(void) {

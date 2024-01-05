@@ -84,16 +84,14 @@ typedef enum ubc_address_mask {
 typedef enum ubc_access {
     ubc_access_either,      /**< \brief Either instruction OR operand access PROBABLY DISABLED*/
     ubc_access_instruction, /**< \brief Instruction access */
-    ubc_access_operand,     /**< \brief Operand access */
-    ubc_access_both         /**< \brief Both instruction AND operand access */
+    ubc_access_operand     /**< \brief Operand access */
 } ubc_access_t;
 
 /** \brief UBC read/write condition type specifier */
 typedef enum ubc_rw {
     ubc_rw_either,  /**< \brief Either read OR write */
     ubc_rw_read,    /**< \brief Read-only */
-    ubc_rw_write,   /**< \brief Write-only */
-    ubc_rw_both     /**< \brief Both read AND write */
+    ubc_rw_write   /**< \brief Write-only */
 } ubc_rw_t;
 
 /** \brief UBC size condition type specifier */
@@ -144,7 +142,6 @@ bool __no_inline ubc_enable_breakpoint(const ubc_breakpoint_t *bp,
                                        void                   *user_data);
 
 bool __no_inline ubc_disable_breakpoint(const ubc_breakpoint_t *bp);
-
 
 
 void ubc_set_break_handler(ubc_break_func_t callback,
