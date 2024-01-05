@@ -256,7 +256,7 @@ void arch_main(void) {
     wdt_disable();
 
     /* Ensure that UBC is not enabled from a previous session */
-    ubc_disable_all();
+    ubc_init();
 
     /* Handle optional callback provided by KOS_INIT_EARLY() */
     if(__kos_init_early_fn)
@@ -298,7 +298,7 @@ void arch_shutdown(void) {
     wdt_disable();
 
     /* Turn off UBC breakpoints, if any */
-    ubc_disable_all();
+    ubc_shutdown();
 
     /* Do auto-shutdown... or use the "light weight" version underneath */
 #if 1
@@ -378,7 +378,7 @@ void arch_abort(void) {
     wdt_disable();
 
     /* Turn off UBC breakpoints, if any */
-    ubc_disable_all();
+    ubc_shutdown();
 
     dbglog(DBG_CRITICAL, "arch: aborting the system\n");
 

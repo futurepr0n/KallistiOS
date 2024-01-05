@@ -161,7 +161,7 @@
 
 #ifndef __no_inline
 /** \brief Ask the compiler to \a never inline a given function. */
-#define __no_inline __attribute__((noinline))
+#define __no_inline __attribute__((__noinline__))
 #endif
 
 /* GCC macros for special cases */

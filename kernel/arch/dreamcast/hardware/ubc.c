@@ -10,6 +10,8 @@
 #include <arch/memory.h>
 #include <arch/irq.h>
 
+#include <kos/dbglog.h>
+
 #include <string.h>
 #include <assert.h>
 
@@ -134,7 +136,7 @@ static void enable_breakpoint(ubc_channel_t           ch,
         BRCR &= (ch == ubc_channel_a)? ~PCBA : ~PCBB;
 }
 
-__no_inline bool ubc_enable_breakpoint(const ubc_breakpoint_t *bp,
+bool __no_inline ubc_enable_breakpoint(const ubc_breakpoint_t *bp,
                                        ubc_break_func_t       callback,
                                        void                   *user_data) {
 
@@ -189,7 +191,7 @@ static void disable_breakpoint(ubc_channel_t ch) {
 }
 
 // Need to handle multi-breakpoint
-__no_inline bool ubc_disable_breakpoint(const ubc_breakpoint_t *bp) {
+bool __no_inline ubc_disable_breakpoint(const ubc_breakpoint_t *bp) {
     /* Disabling a sequential breakpoint pair */
     if(bp->next) {
         if(channel_state[ubc_channel_a].bp == bp &&
@@ -218,12 +220,9 @@ __no_inline bool ubc_disable_breakpoint(const ubc_breakpoint_t *bp) {
     return false;
 }
 
-static void set_dbr(uintptr_t address) { 
-
-}
-
 static void dbr_handler(void) {
     bool serviced = false;
+    irq_context_t *irq_ctx = NULL;
 
     if(BRCR & CMFA) {
         bool disable = false;
@@ -256,12 +255,19 @@ static void dbr_handler(void) {
         serviced = true;
     }
 
-    if(!serviced && break_cb) {
-        break_cb(NULL, irq_ctx, break_ud);
+    if(!serviced) {
+        if(break_cb)
+            break_cb(NULL, irq_ctx, break_ud);
+        else
+            dbglog(DBG_ERROR, "Unhandled UBC break request!\n");
     }
 }
 
-__no_inline void ubc_init(void) { 
+static inline void set_dbr(uintptr_t address) {
+    __asm("ldc %0, DBR" : : "r" (address));
+}
+
+void __no_inline ubc_init(void) {
     disable_breakpoint(ubc_channel_a);
     disable_breakpoint(ubc_channel_b);
 
@@ -270,7 +276,7 @@ __no_inline void ubc_init(void) {
     BRCR = UBDE;
 }
 
-__no_inline void ubc_shutdown(void) {
+void __no_inline ubc_shutdown(void) {
     disable_breakpoint(ubc_channel_a);
     disable_breakpoint(ubc_channel_b);
 

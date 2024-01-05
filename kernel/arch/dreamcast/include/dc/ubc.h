@@ -20,7 +20,7 @@
 #ifndef __DC_UBC_H
 #define __DC_UBC_H
 
-#include <sys/cdefs.h>
+#include <kos/cdefs.h>
 __BEGIN_DECLS
 
 #include <stdbool.h>
@@ -64,7 +64,11 @@ __BEGIN_DECLS
 struct irq_context;
 /** \endcond */
 
-#define UBC_BRK() 0x003B /* needs to be a constant, not known to the assembler */
+#define UBC_BRK() __asm(    \
+    /* "brk\n" */           \
+    ".word 0x003B\n"        \
+    "nop\n"                 \
+) /* needs to be a constant, not known to the assembler */
 
 /** \brief UBC address mask specifier */
 typedef enum ubc_address_mask {
@@ -135,11 +139,11 @@ typedef bool (*ubc_break_func_t)(const ubc_breakpoint_t   *bp,
                                  const struct irq_context *ctx, 
                                  void                     *user_data);
 
-bool ubc_enable_breakpoint(const ubc_breakpoint_t *bp,
-                           ubc_break_func_t       callback,
-                           void                   *user_data);
+bool __no_inline ubc_enable_breakpoint(const ubc_breakpoint_t *bp,
+                                       ubc_break_func_t       callback,
+                                       void                   *user_data);
 
-bool ubc_disable_breakpoint(const ubc_breakpoint_t *bp);
+bool __no_inline ubc_disable_breakpoint(const ubc_breakpoint_t *bp);
 
 
 
@@ -148,9 +152,9 @@ void ubc_set_break_handler(ubc_break_func_t callback,
 
 void ubc_break(void);
 
-void ubc_init(void);
+void __no_inline ubc_init(void);
 
-void ubc_shutdown(void);
+void __no_inline ubc_shutdown(void);
 
 #if 0
 /** \brief  Pause after setting UBC parameters. 
