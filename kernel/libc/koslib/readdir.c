@@ -9,7 +9,6 @@
 #include <errno.h>
 #include <string.h>
 #include <kos/fs.h>
-#include <stdio.h>
 
 struct dirent *readdir(DIR *dir) {
     dirent_t *d;
