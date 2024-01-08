@@ -12,7 +12,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <stdio.h>
 
 /* Comparator used to sort two directory entries alphabetically. */
 int alphasort(const struct dirent **a, const struct dirent **b) {
