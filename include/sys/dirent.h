@@ -43,15 +43,15 @@ __BEGIN_DECLS
 
     @{
 */
-#define DT_UNKNOWN  0   /** \brief Unknown */
-#define DT_FIFO     1   /** \brief Named Pipe or FIFO */
-#define DT_CHR      2   /** \brief Character Device */
-#define DT_DIR      4   /** \brief Directory */
-#define DT_BLK      6   /** \brief Block Device */
-#define DT_REG      8   /** \brief Regular File */
-#define DT_LNK      10  /** \brief Symbolic Link */
-#define DT_SOCK     12  /** \brief Local-Domain Socket */
-#define DT_WHT      14  /** \brief Whiteout (ignored) */
+#define DT_UNKNOWN  0   /**< \brief Unknown */
+#define DT_FIFO     1   /**< \brief Named Pipe or FIFO */
+#define DT_CHR      2   /**< \brief Character Device */
+#define DT_DIR      4   /**< \brief Directory */
+#define DT_BLK      6   /**< \brief Block Device */
+#define DT_REG      8   /**< \brief Regular File */
+#define DT_LNK      10  /**< \brief Symbolic Link */
+#define DT_SOCK     12  /**< \brief Local-Domain Socket */
+#define DT_WHT      14  /**< \brief Whiteout (ignored) */
 /** @} */
 
 /** \brief  POSIX directory entry structure.
