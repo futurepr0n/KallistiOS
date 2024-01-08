@@ -2,6 +2,7 @@
 
    dirent.h
    Copyright (C) 2003 Megan Potter
+   Copyright (C) 2024 Falco Girgis
 
 */
 
@@ -24,6 +25,7 @@ __BEGIN_DECLS
 #include <unistd.h>
 #include <arch/types.h>
 #include <kos/fs.h>
+#include <kos/limits.h>
 
 /** \addtogroup vfs_posix
     @{
@@ -41,7 +43,7 @@ struct dirent {
     off_t   d_off;              /**< \brief File offset */
     uint16  d_reclen;           /**< \brief Record length */
     uint8   d_type;             /**< \brief File type */
-    char    d_name[256];        /**< \brief Filename */
+    char    d_name[];           /**< \brief Filename */
 };
 
 /** \brief  Type representing a directory stream.
@@ -55,8 +57,9 @@ struct dirent {
     \headerfile sys/dirent.h
 */
 typedef struct {
-    file_t          fd;         /**< \brief File descriptor for the directory */
-    struct dirent   d_ent;      /**< \brief Current directory entry */
+    file_t          fd;               /**< \brief File descriptor for the directory */
+    struct dirent   d_ent;            /**< \brief Current directory entry */
+    char            d_name[NAME_MAX]; /**< \brief Filenaem */
 } DIR;
 
 // Standard UNIX dir functions. Not all of these are fully functional
@@ -136,9 +139,15 @@ int dirfd(DIR *dirp);
 void rewinddir(DIR *dir);
 
 /** \brief Not implemented */
-int scandir(const char *dir, struct dirent ***namelist,
+int scandir(const char *__RESTRICT dir, struct dirent ***__RESTRICT namelist,
             int(*filter)(const struct dirent *),
             int(*compar)(const struct dirent **, const struct dirent **));
+
+int alphasort(const struct dirent **a, const struct dirent **b);
+
+/*
+int versionsort(const struct dirent **a, const struct dirent **b);
+*/
 
 /** \brief Not implemented */
 void seekdir(DIR *dir, off_t offset);
