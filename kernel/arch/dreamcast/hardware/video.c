@@ -193,8 +193,8 @@ vid_mode_t vid_builtin[DM_MODE_COUNT] = {
 /*-----------------------------------------------------------------------------*/
 static vid_mode_t  currmode = { 0 };
 vid_mode_t  *vid_mode = 0;
-uint16      *vram_s;
-uint32      *vram_l;
+uint16_t      *vram_s;
+uint32_t      *vram_l;
 
 /*-----------------------------------------------------------------------------*/
 /* Checks the attached cable type (to the A/V port). Returns
@@ -211,12 +211,12 @@ uint32      *vram_l;
 */
 int vid_check_cable(void) {
 #ifndef _arch_sub_naomi
-    vuint32 * porta = (vuint32 *)0xff80002c;
+    volatile uint32_t * porta = (vuint32 *)0xff80002c;
 
     *porta = (*porta & 0xfff0ffff) | 0x000a0000;
 
     /* Read port8 and port9 */
-    return (*((vuint16*)(porta + 1)) >> 8) & 3;
+    return (*((volatile uint16_t*)(porta + 1)) >> 8) & 3;
 #else
     /* XXXX: This still needs to be figured out for NAOMI. For now, assume
        VGA mode. */
@@ -294,8 +294,8 @@ void vid_set_mode(int dm, int pm) {
 
 /*-----------------------------------------------------------------------------*/
 void vid_set_mode_ex(vid_mode_t *mode) {
-    uint16 ct;
-    uint32 data;
+    uint16_t ct;
+    uint32_t data;
 
 
     /* Verify cable type for video mode. */
@@ -426,8 +426,8 @@ void vid_set_mode_ex(vid_mode_t *mode) {
 
 /*-----------------------------------------------------------------------------*/
 void vid_set_vram(uint32 base) {
-    vram_s = (uint16*)(PVR_RAM_BASE | base);
-    vram_l = (uint32*)(PVR_RAM_BASE | base);
+    vram_s = (uint16_t*)(PVR_RAM_BASE | base);
+    vram_l = (uint32_t*)(PVR_RAM_BASE | base);
 }
 
 void vid_set_start(uint32 base) {
@@ -443,7 +443,7 @@ void vid_set_start(uint32 base) {
     }
 }
 
-uint32 vid_get_start(int fb) {
+uint32 vid_get_start(int32_t fb) {
     /* If out of bounds, return current fb addr */
     if((fb < 0) || (fb >= vid_mode->fb_count)) fb = vid_mode->fb_curr;
 
@@ -451,8 +451,8 @@ uint32 vid_get_start(int fb) {
 }
 
 /*-----------------------------------------------------------------------------*/
-void vid_set_fb(int fb) {
-    uint16 oldfb;
+void vid_set_fb(int32_t fb) {
+    uint16_t oldfb;
 
     oldfb = vid_mode->fb_curr;
 
@@ -474,7 +474,7 @@ void vid_set_fb(int fb) {
 }
 
 /*-----------------------------------------------------------------------------*/
-void vid_flip(int fb) {
+void vid_flip(int32_t fb) {
     uint32 base;
 
     vid_set_fb(fb);
@@ -485,8 +485,8 @@ void vid_flip(int fb) {
 }
 
 /*-----------------------------------------------------------------------------*/
-uint32 vid_border_color(int r, int g, int b) {
-    uint32 obc = PVR_GET(PVR_BORDER_COLOR);
+uint32_t vid_border_color(int r, int g, int b) {
+    uint32_t obc = PVR_GET(PVR_BORDER_COLOR);
     PVR_SET(PVR_BORDER_COLOR, ((r & 0xFF) << 16) |
                        ((g & 0xFF) << 8) |
                        (b & 0xFF));
@@ -499,8 +499,8 @@ uint32 vid_border_color(int r, int g, int b) {
     [This is the old KOS function by Megan.]
 */
 void vid_clear(int r, int g, int b) {
-    uint16 pixel16;
-    uint32 pixel32;
+    uint16_t pixel16;
+    uint32_t pixel32;
 
     switch(vid_mode->pm) {
         case PM_RGB555:

@@ -20,10 +20,9 @@
 #ifndef __DC_VIDEO_H
 #define __DC_VIDEO_H
 
+#include <stdint.h>
 #include <sys/cdefs.h>
 __BEGIN_DECLS
-
-#include <arch/types.h>
 
 /** \defgroup video_display Display
     \brief                  Display and framebuffer configuration
@@ -80,7 +79,7 @@ __BEGIN_DECLS
 /** \brief   Video pixel mode depths
     \ingroup video_modes_pixel
 */
-static const uint8 vid_pmode_bpp[4] = {2, 2, 3, 4};
+static const uint8_t vid_pmode_bpp[4] = {2, 2, 3, 4};
 
 /** \defgroup video_modes_display   Types
     \brief                          Display mode type values
@@ -155,29 +154,29 @@ typedef enum vid_display_mode {
     \headerfile dc/video.h
 */
 typedef struct vid_mode {
-    int     generic;    /**< \brief Generic mode type for vid_set_mode() */
-    uint16  width;      /**< \brief Width of the display, in pixels */
-    uint16  height;     /**< \brief Height of the display, in pixels */
-    uint32  flags;      /**< \brief Combination of one or more VID_* flags */
+    uint16_t  generic;    /**< \brief Generic mode type for vid_set_mode() */
+    uint16_t  width;      /**< \brief Width of the display, in pixels */
+    uint16_t  height;     /**< \brief Height of the display, in pixels */
+    uint32_t  flags;      /**< \brief Combination of one or more VID_* flags */
 
-    int16   cable_type; /**< \brief Allowed cable type */
-    uint16  pm;         /**< \brief Pixel mode */
+    int16_t   cable_type; /**< \brief Allowed cable type */
+    uint16_t  pm;         /**< \brief Pixel mode */
 
-    uint16  scanlines;  /**< \brief Number of scanlines */
-    uint16  clocks;     /**< \brief Clocks per scanline */
-    uint16  bitmapx;    /**< \brief Bitmap window X position */
-    uint16  bitmapy;    /**< \brief Bitmap window Y position (automatically
+    uint16_t  scanlines;  /**< \brief Number of scanlines */
+    uint16_t  clocks;     /**< \brief Clocks per scanline */
+    uint16_t  bitmapx;    /**< \brief Bitmap window X position */
+    uint16_t  bitmapy;    /**< \brief Bitmap window Y position (automatically
                                     increased for PAL) */
-    uint16  scanint1;   /**< \brief First scanline interrupt position */
-    uint16  scanint2;   /**< \brief Second scanline interrupt position
+    uint16_t  scanint1;   /**< \brief First scanline interrupt position */
+    uint16_t  scanint2;   /**< \brief Second scanline interrupt position
                                     (automatically doubled for VGA) */
-    uint16  borderx1;   /**< \brief Border X starting position */
-    uint16  borderx2;   /**< \brief Border X stop position */
-    uint16  bordery1;   /**< \brief Border Y starting position */
-    uint16  bordery2;   /**< \brief Border Y stop position */
+    uint16_t  borderx1;   /**< \brief Border X starting position */
+    uint16_t  borderx2;   /**< \brief Border X stop position */
+    uint16_t  bordery1;   /**< \brief Border Y starting position */
+    uint16_t  bordery2;   /**< \brief Border Y stop position */
 
-    uint16  fb_curr;    /**< \brief Current framebuffer */
-    uint16  fb_count;   /**< \brief Number of framebuffers */
+    uint16_t  fb_curr;    /**< \brief Current framebuffer */
+    uint16_t  fb_count;   /**< \brief Number of framebuffers */
     size_t  fb_size;    /**< \brief Size of each framebuffer */
 } vid_mode_t;
 
@@ -206,12 +205,12 @@ extern vid_mode_t *vid_mode;
 /** \brief   16-bit size pointer to the current drawing area. 
     \ingroup video_fb
 */
-extern uint16 *vram_s;
+extern uint16_t *vram_s;
 
 /** \brief   32-bit size pointer to the current drawing area. 
     \ingroup video_fb
 */
-extern uint32 *vram_l;
+extern uint32_t *vram_l;
 
 
 /** \brief   Retrieve the connected video cable type.
@@ -234,7 +233,7 @@ int vid_check_cable(void);
 
     \param  base            The offset within VRAM to set the base to.
 */
-void vid_set_vram(uint32 base);
+void vid_set_vram(uint32_t base);
 
 /** \brief   Set the VRAM base of the framebuffer.
     \ingroup video_fb
@@ -245,7 +244,7 @@ void vid_set_vram(uint32 base);
 
     \param  base            The offset within VRAM to set the base to.
 */
-void vid_set_start(uint32 base);
+void vid_set_start(uint32_t base);
 
 /** \brief   Get the VRAM base of a framebuffer.
     \ingroup video_fb
@@ -255,7 +254,7 @@ void vid_set_start(uint32 base);
 
     \param  fb            The number of the framebuffer or -1 for current.
 */
-uint32 vid_get_start(int fb);
+uint32_t vid_get_start(int32_t fb);
 
 /** \brief   Set the current framebuffer in a multibuffered setup.
     \ingroup video_fb
@@ -268,7 +267,7 @@ uint32 vid_get_start(int fb);
                                 to display the next one.
 
 */
-void vid_set_fb(int fb);
+void vid_set_fb(int32_t fb);
 
 /** \brief   Flip to a framebuffer in a multibuffered setup.
     \ingroup video_fb
@@ -281,7 +280,7 @@ void vid_set_fb(int fb);
                                 to display the next one.
 
 */
-void vid_flip(int fb);
+void vid_flip(int32_t fb);
 
 /** \brief   Set the border color of the display.
     \ingroup video_display
@@ -298,7 +297,7 @@ void vid_flip(int fb);
     
     \return                 Old border color value (RGB888)
 */
-uint32 vid_border_color(int r, int g, int b);
+uint32_t vid_border_color(int r, int g, int b);
 
 /** \brief   Clear the framebuffer.
     \ingroup video_fb
