@@ -425,12 +425,12 @@ void vid_set_mode_ex(vid_mode_t *mode) {
 }
 
 /*-----------------------------------------------------------------------------*/
-void vid_set_vram(uint32 base) {
+void vid_set_vram(uint32_t base) {
     vram_s = (uint16_t*)(PVR_RAM_BASE | base);
     vram_l = (uint32_t*)(PVR_RAM_BASE | base);
 }
 
-void vid_set_start(uint32 base) {
+void vid_set_start(uint32_t base) {
     /* Set vram base of current framebuffer */
     base &= (PVR_MEM_SIZE - 1);
     PVR_SET(PVR_FB_ADDR, base);
@@ -445,16 +445,16 @@ void vid_set_start(uint32 base) {
 
 uint32 vid_get_start(int32_t fb) {
     /* If out of bounds, return current fb addr */
-    if((fb < 0) || (fb >= vid_mode->fb_count)) fb = vid_mode->fb_curr;
+    if((fb < 0) || (fb >= vid_mode->fb_count)) {
+        fb = vid_mode->fb_curr;
+    }
 
     return (vid_mode->fb_size * fb);
 }
 
 /*-----------------------------------------------------------------------------*/
 void vid_set_fb(int32_t fb) {
-    uint16_t oldfb;
-
-    oldfb = vid_mode->fb_curr;
+    uint16_t oldfb = vid_mode->fb_curr;
 
     if((fb < 0) || (fb >= vid_mode->fb_count)) {
         vid_mode->fb_curr++;
@@ -475,7 +475,7 @@ void vid_set_fb(int32_t fb) {
 
 /*-----------------------------------------------------------------------------*/
 void vid_flip(int32_t fb) {
-    uint32 base;
+    uint32_t base;
 
     vid_set_fb(fb);
 
@@ -494,10 +494,7 @@ uint32_t vid_border_color(int r, int g, int b) {
 }
 
 /*-----------------------------------------------------------------------------*/
-/* Clears the screen with a given color
-
-    [This is the old KOS function by Megan.]
-*/
+/* Clears the screen with a given color */
 void vid_clear(int r, int g, int b) {
     uint16_t pixel16;
     uint32_t pixel32;
@@ -531,14 +528,9 @@ void vid_clear(int r, int g, int b) {
 }
 
 /*-----------------------------------------------------------------------------*/
-/* Clears all of video memory as quickly as possible
-
-    [This is the old KOS function by Megan.]
-*/
+/* Clears all of video memory as quickly as possible */
 void vid_empty(void) {
-    /* We'll use the actual base address here since the vram_* pointers
-       can now move around */
-    sq_clr((uint32 *)PVR_RAM_BASE, PVR_MEM_SIZE);
+    sq_clr((uint32_t *)PVR_RAM_BASE, PVR_MEM_SIZE);
 }
 
 /*-----------------------------------------------------------------------------*/
@@ -561,7 +553,6 @@ void vid_enable(void) {
 
    Thanks to HeroZero for this info.
 
-   [This is the old KOS function by Megan.]
 */
 void vid_waitvbl(void) {
     while(!(PVR_GET(PVR_SYNC_STATUS) & 0x01ff))
@@ -575,12 +566,11 @@ void vid_waitvbl(void) {
 void vid_init(int disp_mode, vid_pixel_mode_t pixel_mode) {
     /* Set mode and clear vram */
     vid_set_mode(disp_mode, pixel_mode);
-    vid_clear(0, 0, 0);
-    vid_flip(0);
+    vid_empty();
 }
 
 /*-----------------------------------------------------------------------------*/
 void vid_shutdown(void) {
-    /* Play nice with loaders, like KOS used to do. */
+    /* Reset back to default mode, in case we're going back to a loader. */
     vid_init(DM_640x480, PM_RGB565);
 }
