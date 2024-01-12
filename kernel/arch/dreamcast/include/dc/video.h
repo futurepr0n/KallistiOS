@@ -178,7 +178,7 @@ typedef struct vid_mode {
 
     uint16  fb_curr;    /**< \brief Current framebuffer */
     uint16  fb_count;   /**< \brief Number of framebuffers */
-    uint32  fb_size;    /**< \brief Size of each framebuffer */
+    size_t  fb_size;    /**< \brief Size of each framebuffer */
 } vid_mode_t;
 
 /** \brief   The list of builtin video modes. Do not modify these! 
@@ -226,6 +226,16 @@ extern uint32 *vram_l;
 */
 int vid_check_cable(void);
 
+/** \brief   Set the VRAM convenience pointers.
+    \ingroup video_fb
+
+    This function sets the vram_s and vram_l pointers to specified offset
+    within VRAM. In multibuffered mode it allows manual management of them.
+
+    \param  base            The offset within VRAM to set the base to.
+*/
+void vid_set_vram(uint32 base);
+
 /** \brief   Set the VRAM base of the framebuffer.
     \ingroup video_fb
 
@@ -237,7 +247,30 @@ int vid_check_cable(void);
 */
 void vid_set_start(uint32 base);
 
+/** \brief   Get the VRAM base of a framebuffer.
+    \ingroup video_fb
+
+    This function gets the position of the specified framebuffer within VRAM.
+    Any invalid fb value will be treated as the current framebuffer.
+
+    \param  fb            The number of the framebuffer or -1 for current.
+*/
+uint32 vid_get_start(int fb);
+
 /** \brief   Set the current framebuffer in a multibuffered setup.
+    \ingroup video_fb
+
+    This function sets the displayed framebuffer to the specified buffer.
+    Unlike vid_set_fb, this does not point the vram pointers to the next
+    framebuffer, allowing for non-linear management of the FBs.
+
+    \param  fb              The framebuffer to display or any other value
+                                to display the next one.
+
+*/
+void vid_set_fb(int fb);
+
+/** \brief   Flip to a framebuffer in a multibuffered setup.
     \ingroup video_fb
 
     This function sets the displayed framebuffer to the specified buffer and
@@ -267,11 +300,16 @@ void vid_flip(int fb);
 */
 uint32 vid_border_color(int r, int g, int b);
 
-/** \brief   Clear the display.
+/** \brief   Clear the framebuffer.
     \ingroup video_fb
 
-    This function sets the whole display to the specified color. Internally,
+    This function sets the whole framebuffer to the specified color. Internally,
     this uses the store queues to actually clear the display entirely.
+
+    \note
+    This operates via the vram convenience pointers. In multibuffered mode, 
+    by default it will clear the framebuffer you are currently writing to
+    rather than the one being displayed.
 
     \param  r               The red value of the color (0-255).
     \param  g               The green value of the color (0-255).
@@ -286,6 +324,24 @@ void vid_clear(int r, int g, int b);
     clear it all to 0 bytes.
 */
 void vid_empty(void);
+
+/** \brief   Disable the display.
+    \ingroup video_display
+
+    This function disables video output, blanking the screen.
+
+    \note
+    Unlike vid_clear/vid_empty this does not modify any framebuffer.
+    Instead it merely sets registers that immediately disable output.
+*/
+void vid_disable(void);
+
+/** \brief   Enable the display.
+    \ingroup video_display
+
+    This function enables video output, displaying video as normal.
+*/
+void vid_enable(void);
 
 /** \defgroup video_misc Miscellaneous
     \brief               Miscellaneous video API utilities

@@ -314,9 +314,7 @@ void vid_set_mode_ex(vid_mode_t *mode) {
     }
 
     /* Blank screen and reset display enable (looks nicer) */
-    PVR_SET(PVR_VIDEO_CFG, PVR_GET(PVR_VIDEO_CFG) | 8);    /* Blank */
-    PVR_SET(PVR_FB_CFG_1, PVR_GET(PVR_FB_CFG_1) & ~1);     /* Display disable */
-    vid_border_color(0, 0, 0);                             /* Blank border */
+    vid_disable();
 
     /* Clear interlace flag if VGA (this maybe should be in here?) */
     if(ct == CT_VGA) {
@@ -422,19 +420,21 @@ void vid_set_mode_ex(vid_mode_t *mode) {
         ((ct & 3) << 8);
 
     /* Re-enable the display */
-    PVR_SET(PVR_VIDEO_CFG, PVR_GET(PVR_VIDEO_CFG) & ~8);
-    PVR_SET(PVR_FB_CFG_1, PVR_GET(PVR_FB_CFG_1) | 1);
+    vid_enable();
 }
 
 /*-----------------------------------------------------------------------------*/
+void vid_set_vram(uint32 base) {
+    vram_s = (uint16*)(PVR_RAM_BASE | base);
+    vram_l = (uint32*)(PVR_RAM_BASE | base);
+}
+
 void vid_set_start(uint32 base) {
     /* Set vram base of current framebuffer */
     base &= 0x007FFFFF;
     PVR_SET(PVR_FB_ADDR, base);
 
-    /* These are nice to have. */
-    vram_s = (uint16*)(PVR_RAM_BASE | base);
-    vram_l = (uint32*)(PVR_RAM_BASE | base);
+    vid_set_vram(base);
 
     /* Set odd-field if interlaced. */
     if(vid_mode->flags & VID_INTERLACE) {
@@ -442,8 +442,15 @@ void vid_set_start(uint32 base) {
     }
 }
 
+uint32 vid_get_start(int fb) {
+    /* If out of bounds, return current fb addr */
+    if((fb < 0) || (fb >= vid_mode->fb_count)) fb = vid_mode->fb_curr;
+
+    return (vid_mode->fb_size * fb);
+}
+
 /*-----------------------------------------------------------------------------*/
-void vid_flip(int fb) {
+void vid_set_fb(int fb) {
     uint16 oldfb;
     uint32 base;
 
@@ -463,12 +470,18 @@ void vid_flip(int fb) {
         return;
     }
 
-    vid_set_start(vid_mode->fb_size * vid_mode->fb_curr);
+    vid_set_start(vid_get_start(vid_mode->fb_curr));
+}
+
+/*-----------------------------------------------------------------------------*/
+void vid_flip(int fb) {
+    uint32 base;
+
+    vid_set_fb(fb);
 
     /* Set the vram_* pointers as expected */
-    base = vid_mode->fb_size * ((vid_mode->fb_curr + 1) % vid_mode->fb_count);
-    vram_s = (uint16*)(PVR_RAM_BASE | base);
-    vram_l = (uint32*)(PVR_RAM_BASE | base);
+    base = vid_get_start(((vid_mode->fb_curr + 1) % vid_mode->fb_count));
+    vid_set_vram(base);
 }
 
 /*-----------------------------------------------------------------------------*/
@@ -526,6 +539,19 @@ void vid_empty(void) {
     /* We'll use the actual base address here since the vram_* pointers
        can now move around */
     sq_clr((uint32 *)PVR_RAM_BASE, 8 * 1024 * 1024);
+}
+
+/*-----------------------------------------------------------------------------*/
+void vid_disable(void) {
+    /* Blank screen and reset display enable (looks nicer) */
+    PVR_SET(PVR_VIDEO_CFG, PVR_GET(PVR_VIDEO_CFG) | 8);    /* Blank */
+    PVR_SET(PVR_FB_CFG_1, PVR_GET(PVR_FB_CFG_1) & ~1);     /* Display disable */
+}
+
+void vid_enable(void) {
+    /* Re-enable the display */
+    PVR_SET(PVR_VIDEO_CFG, PVR_GET(PVR_VIDEO_CFG) & ~8);
+    PVR_SET(PVR_FB_CFG_1, PVR_GET(PVR_FB_CFG_1) | 1);
 }
 
 /*-----------------------------------------------------------------------------*/
