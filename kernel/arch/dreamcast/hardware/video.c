@@ -273,16 +273,14 @@ void vid_set_mode(int dm, int pm) {
     /* We set this here so actual mode is bit-depth independent.. */
     mode.pm = pm;
 
-    /* Set the Multi-buffer count and positions */
+    /* Calculate basic size needed for a framebuffer */
+    mode.fb_size = (mode.width * mode.height) * vid_pmode_bpp[mode.pm];
+
+    /* Ensure the FBs are 32-bit aligned */
+    if(mode.fb_size % 4)
+        mode.fb_size = (mode.fb_size + 4) & ~3;
+
     if(mb == DM_MULTIBUFFER) {
-
-        /* Calculate basic size needed for a framebuffer */
-        mode.fb_size = (mode.width * mode.height) * vid_pmode_bpp[mode.pm];
-
-        /* Ensure the FBs are 32-bit aligned */
-        if(mode.fb_size % 4)
-            mode.fb_size = (mode.fb_size + 4) & ~3;
-
         /* Fill vram with framebuffers */
         mode.fb_count = PVR_MEM_SIZE / mode.fb_size;
     }
@@ -431,7 +429,7 @@ void vid_set_vram(uint32 base) {
 
 void vid_set_start(uint32 base) {
     /* Set vram base of current framebuffer */
-    base &= 0x007FFFFF;
+    base &= (PVR_MEM_SIZE - 1);
     PVR_SET(PVR_FB_ADDR, base);
 
     vid_set_vram(base);
@@ -538,7 +536,7 @@ void vid_clear(int r, int g, int b) {
 void vid_empty(void) {
     /* We'll use the actual base address here since the vram_* pointers
        can now move around */
-    sq_clr((uint32 *)PVR_RAM_BASE, 8 * 1024 * 1024);
+    sq_clr((uint32 *)PVR_RAM_BASE, PVR_MEM_SIZE);
 }
 
 /*-----------------------------------------------------------------------------*/

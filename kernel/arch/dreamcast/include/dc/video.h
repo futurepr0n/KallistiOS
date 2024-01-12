@@ -345,7 +345,7 @@ void vid_enable(void);
 
 /** \defgroup video_misc Miscellaneous
     \brief               Miscellaneous video API utilities
-    \ingroup            video
+    \ingroup             video
 */
 
 /** \brief   Wait for VBlank.
