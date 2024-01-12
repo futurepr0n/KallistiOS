@@ -4,7 +4,7 @@
 
    Copyright (C) 2001 Anders Clerwall (scav)
    Copyright (C) 2000-2001 Megan Potter
-   Copyright (C) 2023 Donald Haase
+   Copyright (C) 2023-2024 Donald Haase
  */
 
 #include <dc/video.h>
@@ -225,7 +225,7 @@ int vid_check_cable(void) {
 }
 
 /*-----------------------------------------------------------------------------*/
-void vid_set_mode(int dm, int pm) {
+void vid_set_mode(int dm, vid_pixel_mode_t pm) {
     vid_mode_t mode;
     int i, ct, found, mb;
 
@@ -572,7 +572,7 @@ void vid_waitvbl(void) {
 }
 
 /*-----------------------------------------------------------------------------*/
-void vid_init(int disp_mode, int pixel_mode) {
+void vid_init(int disp_mode, vid_pixel_mode_t pixel_mode) {
     /* Set mode and clear vram */
     vid_set_mode(disp_mode, pixel_mode);
     vid_clear(0, 0, 0);

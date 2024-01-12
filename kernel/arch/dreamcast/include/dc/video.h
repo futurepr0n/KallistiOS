@@ -1,7 +1,9 @@
 /* KallistiOS ##version##
 
-    dc/video.h
-    Copyright (C) 2001 Anders Clerwall (scav)
+   dc/video.h
+
+   Copyright (C) 2001 Anders Clerwall (scav)
+   Copyright (C) 2023-2024 Donald Haase
 
 */
 
@@ -66,15 +68,15 @@ __BEGIN_DECLS
     \ingroup            video_modes_pixel
 
     This set of constants control the pixel mode that the framebuffer is set to.
-
-    @{
+    These are hardware-based values and get set in bits 2 and 3 of PVR_FB_CFG_1.
 */
-#define PM_RGB555   0       /**< \brief RGB555 pixel mode (15-bit) */
-#define PM_RGB565   1       /**< \brief RGB565 pixel mode (16-bit) */
-#define PM_RGB888P  2       /**< \brief RBG888 packed pixel mode (24-bit) */
-#define PM_RGB0888  3       /**< \brief RGB0888 pixel mode (32-bit) */
-#define PM_RGB888   PM_RGB0888 /**< \brief Backwards compatibility support */
-/** @} */
+typedef enum vid_pixel_mode {
+  PM_RGB555   = 0,       /**< \brief RGB555 pixel mode (15-bit) */
+  PM_RGB565   = 1,       /**< \brief RGB565 pixel mode (16-bit) */
+  PM_RGB888P  = 2,       /**< \brief RBG888 packed pixel mode (24-bit) */
+  PM_RGB0888  = 3,       /**< \brief RGB0888 pixel mode (32-bit) */
+  PM_RGB888   = 3        /**< \brief Backwards compatibility support */
+} vid_pixel_mode_t;
 
 /** \brief   Video pixel mode depths
     \ingroup video_modes_pixel
@@ -160,7 +162,7 @@ typedef struct vid_mode {
     uint32_t  flags;      /**< \brief Combination of one or more VID_* flags */
 
     int16_t   cable_type; /**< \brief Allowed cable type */
-    uint16_t  pm;         /**< \brief Pixel mode */
+    vid_pixel_mode_t  pm; /**< \brief Pixel mode */
 
     uint16_t  scanlines;  /**< \brief Number of scanlines */
     uint16_t  clocks;     /**< \brief Clocks per scanline */
@@ -363,7 +365,7 @@ void vid_waitvbl(void);
     \param  dm              The display mode to use. One of the DM_* values.
     \param  pm              The pixel mode to use. One of the PM_* values.
 */
-void vid_set_mode(int dm, int pm);
+void vid_set_mode(int dm, vid_pixel_mode_t pm);
 
 /** \brief   Set the video mode.
     \ingroup video_modes
@@ -393,7 +395,7 @@ void vid_set_mode_ex(vid_mode_t *mode);
     \param  disp_mode       The display mode to use. One of the DM_* values.
     \param  pixel_mode      The pixel mode to use. One of the PM_* values.
 */
-void vid_init(int disp_mode, int pixel_mode);
+void vid_init(int disp_mode, vid_pixel_mode_t pixel_mode);
 
 /** \brief   Shut down the video system.
 
