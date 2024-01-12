@@ -314,6 +314,9 @@ void vid_set_mode_ex(vid_mode_t *mode) {
     /* Blank screen and reset display enable (looks nicer) */
     vid_disable();
 
+    /* Also clear any set border color now */
+    vid_border_color(0, 0, 0);
+
     /* Clear interlace flag if VGA (this maybe should be in here?) */
     if(ct == CT_VGA) {
         mode->flags &= ~VID_INTERLACE;
@@ -450,7 +453,6 @@ uint32 vid_get_start(int fb) {
 /*-----------------------------------------------------------------------------*/
 void vid_set_fb(int fb) {
     uint16 oldfb;
-    uint32 base;
 
     oldfb = vid_mode->fb_curr;
 
