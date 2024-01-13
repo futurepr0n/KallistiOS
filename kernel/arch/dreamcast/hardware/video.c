@@ -479,7 +479,7 @@ void vid_flip(int32_t fb) {
 
     vid_set_fb(fb);
 
-    /* Set the vram_* pointers as expected */
+    /* Set the vram_* pointers to the next fb */
     base = vid_get_start(((vid_mode->fb_curr + 1) % vid_mode->fb_count));
     vid_set_vram(base);
 }
