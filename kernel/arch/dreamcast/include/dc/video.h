@@ -22,6 +22,7 @@
 #ifndef __DC_VIDEO_H
 #define __DC_VIDEO_H
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <sys/cdefs.h>
 __BEGIN_DECLS
