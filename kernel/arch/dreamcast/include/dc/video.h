@@ -223,7 +223,7 @@ extern uint32_t *vram_l;
     \retval CT_RGB          If a RGB/SCART cable is connected.
     \retval CT_COMPOSITE    If a composite cable or RF switch is connected.
 */
-int vid_check_cable(void);
+int8_t vid_check_cable(void);
 
 /** \brief   Set the VRAM convenience pointers.
     \ingroup video_fb

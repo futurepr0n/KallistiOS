@@ -209,7 +209,7 @@ uint32_t      *vram_l;
 
    [This is the old KOS function by Megan.]
 */
-int vid_check_cable(void) {
+int8_t vid_check_cable(void) {
 #ifndef _arch_sub_naomi
     volatile uint32_t * porta = (vuint32 *)0xff80002c;
 
@@ -443,7 +443,7 @@ void vid_set_start(uint32_t base) {
     }
 }
 
-uint32 vid_get_start(int32_t fb) {
+uint32_t vid_get_start(int32_t fb) {
     /* If out of bounds, return current fb addr */
     if((fb < 0) || (fb >= vid_mode->fb_count)) {
         fb = vid_mode->fb_curr;
