@@ -485,7 +485,7 @@ void vid_flip(int32_t fb) {
 }
 
 /*-----------------------------------------------------------------------------*/
-uint32_t vid_border_color(int r, int g, int b) {
+uint32_t vid_border_color(uint8_t r, uint8_t g, uint8_t b) {
     uint32_t obc = PVR_GET(PVR_BORDER_COLOR);
     PVR_SET(PVR_BORDER_COLOR, ((r & 0xFF) << 16) |
                        ((g & 0xFF) << 8) |
@@ -495,7 +495,7 @@ uint32_t vid_border_color(int r, int g, int b) {
 
 /*-----------------------------------------------------------------------------*/
 /* Clears the screen with a given color */
-void vid_clear(int r, int g, int b) {
+void vid_clear(uint8_t r, uint8_t g, uint8_t b) {
     uint16_t pixel16;
     uint32_t pixel32;
 
