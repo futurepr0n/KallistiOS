@@ -63,9 +63,7 @@ __BEGIN_DECLS
     \ingroup                    video_modes
 */
 
-/** \defgroup vid_pmode Values
-    \brief              Pixel mode values for the framebuffer
-    \ingroup            video_modes_pixel
+/** \brief              Pixel mode values for the framebuffer
 
     This set of constants control the pixel mode that the framebuffer is set to.
     These are hardware-based values and get set in bits 2 and 3 of PVR_FB_CFG_1.
