@@ -177,7 +177,7 @@ typedef struct vid_mode {
 
     uint16_t  fb_curr;    /**< \brief Current framebuffer */
     uint16_t  fb_count;   /**< \brief Number of framebuffers */
-    size_t  fb_size;    /**< \brief Size of each framebuffer */
+    size_t  fb_size;      /**< \brief Size of each framebuffer */
 } vid_mode_t;
 
 /** \brief   The list of builtin video modes. Do not modify these! 
@@ -324,23 +324,27 @@ void vid_clear(int r, int g, int b);
 */
 void vid_empty(void);
 
-/** \brief   Disable the display.
+/** \brief   Get the state of video output.
     \ingroup video_display
 
-    This function disables video output, blanking the screen.
+    This function gets the state of video output as set via vid_set_enabled.
+
+    \return                 true if enabled, false if not.
+*/
+bool vid_get_enabled(void);
+
+/** \brief   Enable/disable the display.
+    \ingroup video_display
+
+    This function enables or disables video output
+
+    \param  val             true to enable video output, false to disable.
 
     \note
     Unlike vid_clear/vid_empty this does not modify any framebuffer.
     Instead it merely sets registers that immediately disable output.
 */
-void vid_disable(void);
-
-/** \brief   Enable the display.
-    \ingroup video_display
-
-    This function enables video output, displaying video as normal.
-*/
-void vid_enable(void);
+void vid_set_enabled(bool);
 
 /** \defgroup video_misc Miscellaneous
     \brief               Miscellaneous video API utilities

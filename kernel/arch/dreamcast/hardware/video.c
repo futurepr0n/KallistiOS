@@ -312,7 +312,7 @@ void vid_set_mode_ex(vid_mode_t *mode) {
     }
 
     /* Blank screen and reset display enable (looks nicer) */
-    vid_disable();
+    vid_set_enabled(false);
 
     /* Also clear any set border color now */
     vid_border_color(0, 0, 0);
@@ -421,7 +421,7 @@ void vid_set_mode_ex(vid_mode_t *mode) {
         ((ct & 3) << 8);
 
     /* Re-enable the display */
-    vid_enable();
+    vid_set_enabled(true);
 }
 
 /*-----------------------------------------------------------------------------*/
@@ -534,16 +534,25 @@ void vid_empty(void) {
 }
 
 /*-----------------------------------------------------------------------------*/
-void vid_disable(void) {
-    /* Blank screen and reset display enable (looks nicer) */
-    PVR_SET(PVR_VIDEO_CFG, PVR_GET(PVR_VIDEO_CFG) | 8);    /* Blank */
-    PVR_SET(PVR_FB_CFG_1, PVR_GET(PVR_FB_CFG_1) & ~1);     /* Display disable */
+bool vid_get_enabled(void) {
+    if(PVR_GET(PVR_FB_CFG_1) & 1) return true;
+    else return false;
 }
 
-void vid_enable(void) {
-    /* Re-enable the display */
-    PVR_SET(PVR_VIDEO_CFG, PVR_GET(PVR_VIDEO_CFG) & ~8);
-    PVR_SET(PVR_FB_CFG_1, PVR_GET(PVR_FB_CFG_1) | 1);
+void vid_set_enabled(bool val) {
+    /* If it's already the current setting, dont' do anything */
+    if(val == vid_get_enabled()) return;
+
+    if(val) {
+        /* Re-enable the display */
+        PVR_SET(PVR_VIDEO_CFG, PVR_GET(PVR_VIDEO_CFG) & ~8);
+        PVR_SET(PVR_FB_CFG_1, PVR_GET(PVR_FB_CFG_1) | 1);
+    }
+    else {
+        /* Blank screen and reset display enable (looks nicer) */
+        PVR_SET(PVR_VIDEO_CFG, PVR_GET(PVR_VIDEO_CFG) | 8);    /* Blank */
+        PVR_SET(PVR_FB_CFG_1, PVR_GET(PVR_FB_CFG_1) & ~1);     /* Display disable */
+    }
 }
 
 /*-----------------------------------------------------------------------------*/

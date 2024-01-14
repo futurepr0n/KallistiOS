@@ -196,8 +196,8 @@ vid_flip
 vid_border_color
 vid_clear
 vid_empty
-vid_disable
-vid_enable
+vid_get_enabled
+vid_set_enabled
 vid_waitvbl
 vid_set_mode
 vid_set_mode_ex
