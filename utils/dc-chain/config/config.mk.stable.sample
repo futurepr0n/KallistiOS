@@ -164,9 +164,9 @@ newlib_c99_formats=1
 # performance.
 #newlib_opt_space=1
 
-# Disable GCC Native Language Support
+# Disable GCC Native Language Support (1|0)
 # By default, NLS allows GCC to output diagnostics in non-English languages.
-# Uncommenting this line NLS, forcing GCC to output in American English.
+# Set this variable to disable NLS, forcing GCC to output in American English.
 #disable_nls=1
 
 # MinGW/MSYS
