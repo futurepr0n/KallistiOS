@@ -25,7 +25,7 @@ OBJS += asic.o g2bus.o
 OBJS += video.o vblank.o
 
 # CPU-related
-OBJS += sq.o scif.o ubc.o
+OBJS += sq.o scif.o ubc.o dbr.o
 
 # SPI device support
 OBJS += scif-spi.o sd.o

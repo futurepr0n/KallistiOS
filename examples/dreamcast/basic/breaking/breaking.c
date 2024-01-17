@@ -1,61 +1,56 @@
-#include <dc/ubc.h>
-
+#include <kos.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <stdint.h>
 #include <assert.h>
+#include <stdatomic.h>
 
-#define printf(...) \
-    do { \
-        (printf)(__VA_ARGS__); \
-        fflush(stdout); \
-    } while(0)
+static atomic_bool handled_ = false;
 
 static bool handlerfunc(const ubc_breakpoint_t *bp, 
                         const irq_context_t *ctx,
                         void *ud) {
-    printf("HANDLED!!!\n\n");
+
+    printf("BREAKPOINT HIT!\n");
+
+    handled_ = true;
     return true;
 }
 
-static void __no_inline testfunc(void) { 
-    ubc_breakpoint_t bpa = {
-            .address = (uintptr_t)&&label
-        };
+static bool break_on_sized_data_write_value(void) {
+    uint16_t var, tmp;
 
-    static bool pass = false;
+    ubc_breakpoint_t bp = {
+        .address = &var,                  // address to break on
+        .cond = {
+            .access = ubc_access_operand, // instruction, operand, or both
+            .rw     = ubc_rw_write,       // read, write, or both
+            .size   = ubc_size_word       // byte, word, longword, quadword
+        },
+        .data = {
+            .enabled = true,              // turn on data comparison
+            .value   = 3                  // data to compare
+        }
+    };
 
-    if(!pass) {
-        assert(ubc_enable_breakpoint(&bpa,
-                              handlerfunc,
-                              NULL));
-        pass = true; 
-    }
+    ubc_enable_breakpoint(&bp,handlerfunc, NULL);
 
-    printf("PRE LABEL!\n\n");
+    tmp = var; (void)tmp;
+    assert(!handled_); //we only did a read
 
-    goto *&&label;
+    var = 43;
+    assert(!handled_); // we wrote the wrong value
 
-label:    
-    printf("HERE!!!!\n");
+    *(uint8_t*)&var = 3;
+    assert(!handled_); //we accessed it as the wrong size
+
+    var = 3;
+    /* BREAKPOINT SHOULD TRIGGER HERE */
+    assert(handled_); // wrote right value as the right size!
+
+    printf("Success!\n");
 }
 
-
-
 int main(int argc, char* argv[]) {
-    #if 0
-    ubc_breakpoint_t bpb = {
-            .address = (uintptr_t)testfunc
-        };
+    break_on_sized_data_write_value();
 
-    assert(ubc_enable_breakpoint(&bpb,
-                                 handlerfunc,
-                                 NULL));
-#endif
-    testfunc();
-    testfunc();
-    testfunc();
-
-    return EXIT_SUCCESS;
+    return 0;
 }

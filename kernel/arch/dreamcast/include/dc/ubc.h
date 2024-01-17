@@ -2,7 +2,7 @@
 
    kernel/arch/dreamcast/include/dc/ubc.h
    Copyright (C) 2002 Megan Potter
-   Copyright (C) 2023 Falco Girgis
+   Copyright (C) 2024 Falco Girgis
 */
 
 /** \file    dc/ubc.h
@@ -47,12 +47,6 @@ __BEGIN_DECLS
           or ranges of values (ubc_channel_b only).
         - Pre or Post-Instruction breaking
 
-    \note 
-    This API has been inlined to avoid complications with using it, but as
-    such, much of what would be "private" implementation details such as
-    register definitions are not encapsulated. Typically you want to use the
-    high-level API and not the direct register access.
-
     \warning
     This Driver is used internally by the gdb_stub, so care must be taken to
     not utilize the UBC during a GDB debugging session!
@@ -70,7 +64,9 @@ struct irq_context;
     "nop\n"                 \
 ) /* needs to be a constant, not known to the assembler */
 
-/** \brief UBC address mask specifier */
+/** \brief UBC address mask specifier
+
+*/
 typedef enum ubc_address_mask {
     ubc_address_mask_none,   /**< \brief Disable masking */
     ubc_address_mask_10,     /**< \brief Low 10 bits */
@@ -82,16 +78,16 @@ typedef enum ubc_address_mask {
 
 /** \brief UBC access condition type specifier */
 typedef enum ubc_access {
-    ubc_access_either,      /**< \brief Either instruction OR operand access PROBABLY DISABLED*/
-    ubc_access_instruction, /**< \brief Instruction access */
-    ubc_access_operand     /**< \brief Operand access */
+    ubc_access_either,      /**< \brief Either Instruction or Operand */
+    ubc_access_instruction, /**< \brief Instruction */
+    ubc_access_operand      /**< \brief Operand */
 } ubc_access_t;
 
 /** \brief UBC read/write condition type specifier */
 typedef enum ubc_rw {
-    ubc_rw_either,  /**< \brief Either read OR write */
+    ubc_rw_either,  /**< \brief Either Read or Write */
     ubc_rw_read,    /**< \brief Read-only */
-    ubc_rw_write   /**< \brief Write-only */
+    ubc_rw_write    /**< \brief Write-only */
 } ubc_rw_t;
 
 /** \brief UBC size condition type specifier */
@@ -103,9 +99,24 @@ typedef enum ubc_size {
     ubc_size_quadword   /**< \brief 64-bit sizes */
 } ubc_size_t;
 
-/** \brief UBC breakpoint structure */
+/** \brief UBC breakpoint structure
+
+    This structure contains all of the information needed to configure a
+    breakpoint using the SH4's UBC. It is meant to be zero-initialized,
+    with the most commonly preferred, general values being the defaults,
+    so that the only member that must be initialized to a non-zero value is
+    ubc_breakpoint_t::address.
+
+    \remark
+    The default configuration will trigger a breakpoint with read, write, or PC
+    access to ubc_breakpoint_t::address.
+
+    \warning
+    When using ubc_breakpoint_t::asid or ubc_breakpoint_t::data, do not forget
+    to set their respective `enable` members!
+*/
 typedef struct ubc_breakpoint {
-    uintptr_t address;
+    void *address;
 
     struct { 
         ubc_address_mask_t address_mask;
@@ -120,9 +131,9 @@ typedef struct ubc_breakpoint {
     } asid;
 
     struct {
-        bool      enabled;
-        uintptr_t value;
-        uintptr_t mask;
+        bool     enabled;
+        uint32_t value;
+        uint32_t mask;
     } data;
 
     struct {
