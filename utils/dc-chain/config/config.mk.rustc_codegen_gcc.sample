@@ -8,7 +8,8 @@
 ###############################################################################
 ###############################################################################
 ### THIS CONFIG IS FOR AN EXPERIMENTAL VERSION OF GCC!
-## THERE ARE NO KNOWN ISSUES BUILDING THIS VERSION as of 2024-01-04.
+## THERE ARE IS ONE KNOWN ISSUE BUILDING THIS VERSION as of 2024-01-04:
+## 1. --enable-host-shared must be uncommented in scripts/gcc-pass2.mk.
 ###############################################################################
 ###############################################################################
 

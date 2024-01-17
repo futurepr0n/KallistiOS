@@ -19,6 +19,7 @@ $(build_gcc_pass2): logdir
           --enable-threads=$(thread_model) \
           --enable-languages=$(pass2_languages) \
           --enable-checking=release \
+#         --enable-host-shared \
           $(extra_configure_args) \
           $(macos_gcc_configure_args) \
           CC="$(CC)" \
