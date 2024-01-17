@@ -11,6 +11,9 @@ The available templates include the following configurations:
 | **config.mk.stable.sample** | **13.2.0** | **4.3.0** | **2.41** | **8.5.0** | **2.41** | **modern toolchain with GCC 13.2.0 release**<br />**current "stable" configuration** |
 | config.mk.13.2.1-dev.sample | 13.2.1 (git) | 4.4.0 | 2.41 | 8.5.0 | 2.41 | latest GCC 13 development version from git<br />known to build without issues |
 | config.mk.14.0.1-dev.sample | 14.0.1 (git) | 4.4.0 | 2.41 | 8.5.0 | 2.41 | latest GCC 14 development version from git<br />builds with caveats, see sample file for more info |
+| config.mk.gccrs.sample | gccrs git | 4.4.0 | 2.41 | 8.5.0 | 2.41 | latest gccrs version from git<br />for latest Rust support via gccrs<br />builds as of 2024-01-04 |
+| config.mk.rustc_codegen_gcc.sample | rustc_codegen_gcc git | 4.4.0 | 2.41 | 8.5.0 | 2.41 | latest gcc version with rustc_codegen_gcc-enabled libgccjit from git<br />for latest Rust support via rustc_codegen_gcc<br />builds as of 2024-01-04 |
+| config.mk.fortran-raw.sample | 13.2.0 | 3.3.0 | 2.41 | 8.5.0 | 2.41 | raw toolchain with Fortran support<br />builds with caveats, see sample file for more info |
 
 The **stable** configuration is the primary, widely tested target for KallistiOS, and is the most recent toolchain configuration known to work with all example programs. The **legacy** configurations contain an older versions of the toolchain that may be useful in compiling older software. The non-"stable" alternative configurations are maintained at a lower priority and are not guaranteed to build, but feel free to open a bug report if issues are encountered building one of these configurations.
 

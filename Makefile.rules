@@ -24,6 +24,9 @@ ifndef KOS_DEPDIR
 %.o: %.mm
 	kos-c++ $(CFLAGS) $(CXXFLAGS) -c $< -o $@
 
+%.rox: %.rs
+	kos-cc -frust-incomplete-and-experimental-compiler-do-not-use $(CFLAGS) -c $< -o $@
+
 else
 
 %.o: %.c

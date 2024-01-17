@@ -1,0 +1,16 @@
+diff --color -ruN gcc-antoyo/gcc/Makefile.in gcc-antoyo-fixed/gcc/Makefile.in
+--- gcc-antoyo/gcc/Makefile.in	2023-12-26 17:48:37.186704923 -0600
++++ gcc-antoyo-fixed/gcc/Makefile.in	2023-12-26 17:53:41.799962849 -0600
+@@ -2328,6 +2328,12 @@
+ 	$(COMPILE) $<
+ 	$(POSTCOMPILE)
+ 
++# Files used by the JIT language front end.
++
++default-jit.o: config/default-jit.cc
++	$(COMPILE) $<
++	$(POSTCOMPILE)
++
+ # Language-independent files.
+ 
+ DRIVER_DEFINES = \
